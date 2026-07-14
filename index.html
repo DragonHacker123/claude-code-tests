@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>City Design Sandbox — four blueprints, one stress test</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --surface2: #222220;
+    --ink: #ffffff; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --border: rgba(255,255,255,0.10);
+    --good: #0ca30c; --warn: #fab219; --serious: #ec835a; --crit: #d03b3b;
+    --s-blue: #3987e5; --s-aqua: #199e70; --s-yellow: #c98500; --s-violet: #9085e9;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--page); color: var(--ink2); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 14px 18px 10px; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  header h1 { font-size: 17px; color: var(--ink); font-weight: 650; margin-right: 8px; }
+  header .sub { color: var(--muted); font-size: 12px; width: 100%; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: baseline; }
+  #citybar { display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 18px; border-bottom: 1px solid var(--border); }
+  .citybtn { background: var(--surface); color: var(--ink2); border: 1px solid var(--border); border-radius: 8px;
+             padding: 7px 12px; cursor: pointer; font: inherit; text-align: left; }
+  .citybtn small { display: block; color: var(--muted); font-size: 11px; }
+  .citybtn.active { border-color: var(--ink2); color: var(--ink); background: var(--surface2); }
+  .tabs { display: flex; gap: 4px; margin-left: auto; }
+  .tabbtn { background: none; border: 1px solid var(--border); color: var(--ink2); padding: 7px 14px; border-radius: 8px; cursor: pointer; font: inherit; }
+  .tabbtn.active { background: var(--surface2); color: var(--ink); border-color: var(--ink2); }
+
+  main { padding: 14px 18px; }
+  #cityTitle { color: var(--ink); font-size: 15px; margin-bottom: 10px; }
+  #cityTitle small { color: var(--muted); font-weight: 400; margin-left: 8px; }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 14px; }
+  @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+  #mapwrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; position: relative; }
+  #map { width: 100%; height: 640px; display: block; cursor: crosshair; touch-action: none; }
+  .maptools { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .toolbtn { background: rgba(26,26,25,0.92); border: 1px solid var(--border); color: var(--ink2); border-radius: 7px; padding: 6px 11px; cursor: pointer; font: inherit; font-size: 13px; }
+  .toolbtn.active { border-color: var(--ink); color: var(--ink); }
+  .maplegend { position: absolute; bottom: 10px; left: 10px; background: rgba(26,26,25,0.92); border: 1px solid var(--border);
+               border-radius: 7px; padding: 6px 10px; font-size: 11px; color: var(--muted); display:flex; gap:10px; flex-wrap:wrap;}
+  .maplegend span i { display:inline-block; width:9px; height:9px; margin-right:4px; }
+
+  .panel { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+  .box h4 { color: var(--ink); font-size: 12.5px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .runrow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .runrow button { background: var(--surface2); color: var(--ink); border: 1px solid var(--border); border-radius: 7px; padding: 7px 13px; cursor: pointer; font: inherit; }
+  .runrow input[type=range] { flex: 1; min-width: 60px; accent-color: var(--s-blue); }
+  .params { margin-top: 8px; }
+  .params label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 3px; }
+  .params .row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .params button { background: var(--surface2); color: var(--ink); border: 1px solid var(--border); border-radius: 7px; padding: 6px 11px; cursor: pointer; font: inherit; font-size: 13px; }
+
+  #tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+  .tile { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+  .tile .tv { color: var(--ink); font-size: 17px; font-weight: 650; }
+  .tile .tl { color: var(--muted); font-size: 10.5px; margin-top: 2px; }
+  .tile.crit .tv { color: var(--crit); } .tile.warn .tv { color: var(--warn); } .tile.good .tv { color: var(--good); }
+
+  .hint { font-size: 12px; border-left: 3px solid var(--muted); padding: 6px 9px; background: var(--surface2); border-radius: 0 6px 6px 0; }
+  .hint.conf-high { border-color: var(--good); }
+  .hint.conf-medium { border-color: var(--warn); }
+  .hint.conf-low { border-color: var(--serious); }
+  .capline { border-left: 3px solid var(--muted); padding: 4px 9px; margin-bottom: 6px; font-size: 12px; }
+  .capline.conf-high { border-color: var(--good); } .capline.conf-medium { border-color: var(--warn); } .capline.conf-low { border-color: var(--serious); }
+  .capline .capname { color: var(--ink); font-weight: 600; text-transform: capitalize; margin-right: 6px; }
+  .capline .conf { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .capline p { color: var(--muted); margin-top: 2px; }
+  .assump { font-size: 12px; color: var(--warn); padding: 3px 0; }
+  #log { font: 11.5px/1.5 ui-monospace, monospace; color: var(--muted); max-height: 150px; overflow-y: auto; }
+  #inspect { font-size: 12.5px; }
+  #spark { width: 100%; height: 90px; border-radius: 6px; }
+  .sparklegend { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .sparklegend i { display: inline-block; width: 10px; height: 3px; vertical-align: middle; margin: 0 4px 0 10px; }
+  .blgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; }
+  .blgrid span { color: var(--ink); font-weight: 600; float: right; }
+  .footnote { color: var(--muted); font-size: 11.5px; margin-top: 8px; }
+
+  /* compare view */
+  .warnbox { background: var(--surface); border: 1px solid var(--warn); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: 13px; }
+  .warnbox ul { margin: 6px 0 0 18px; } .warnbox li { margin-bottom: 4px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+  .card h3 { color: var(--ink); font-size: 14.5px; }
+  .cardsub { color: var(--muted); font-size: 11.5px; margin-bottom: 8px; }
+  .card canvas { width: 100%; border-radius: 6px; image-rendering: pixelated; }
+  .cardstats { display: flex; gap: 12px; margin-top: 8px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
+  .cardstats span { color: var(--ink); font-weight: 650; font-size: 13px; display: block; }
+  .tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th, td { padding: 7px 11px; text-align: left; border-bottom: 1px solid var(--grid); vertical-align: top; max-width: 260px; }
+  th { color: var(--ink); position: sticky; top: 0; background: var(--surface); }
+  .rowlabel { color: var(--ink2); font-weight: 600; white-space: nowrap; }
+  td.missCell { background: rgba(236,131,90,0.05); }
+  .badge { font-size: 10px; padding: 1.5px 7px; border-radius: 20px; font-weight: 650; letter-spacing: 0.04em; }
+  .badge.miss { background: rgba(236,131,90,0.16); color: var(--serious); border: 1px solid var(--serious); }
+  .badge.der { background: rgba(57,135,229,0.14); color: var(--s-blue); border: 1px solid var(--s-blue); font-weight: 500; }
+</style>
+</head>
+<body>
+<header>
+  <h1>City Design Sandbox</h1>
+  <div class="tabs">
+    <button class="tabbtn active" data-tab="sandbox">Sandbox</button>
+    <button class="tabbtn" data-tab="compare">Compare</button>
+  </div>
+  <div class="sub">Four independently-designed self-sufficient city blueprints (Haiku, Sonnet, Opus, Fable repos), normalised to one schema and stress-tested with fire, flood, earthquake and a needs-based population simulation. Every simulation parameter comes from the selected design's own masterplan; missing figures are flagged, not guessed.</div>
+</header>
+<div id="citybar"></div>
+<main>
+  <div id="sandboxView">
+    <div id="cityTitle"></div>
+    <div class="layout">
+      <div id="mapwrap">
+        <canvas id="map" width="1280" height="1280"></canvas>
+        <div class="maptools">
+          <button class="toolbtn active" data-tool="inspect">🔍 Inspect</button>
+          <button class="toolbtn" data-tool="fire">🔥 Fire</button>
+          <button class="toolbtn" data-tool="flood">🌊 Flood</button>
+          <button class="toolbtn" data-tool="quake">🫨 Earthquake</button>
+        </div>
+        <div class="maplegend">
+          <span><i style="background:#393835"></i>residential</span>
+          <span><i style="background:#5a5648"></i>civic</span>
+          <span><i style="background:#332d26"></i>industry/port</span>
+          <span><i style="background:#232a1a"></i>agriculture</span>
+          <span><i style="background:#1c2b1c"></i>green/firebreak</span>
+          <span><i style="background:#3e3a2c"></i>barrier/berm</span>
+          <span><i style="background:#132430"></i>water</span>
+          <span><i style="background:#e66767"></i>fire stn</span>
+          <span><i style="background:#d55181"></i>micro-post</span>
+          <span><i style="background:#ffffff"></i>hospital</span>
+          <span><i style="background:#3987e5"></i>police/crew</span>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="box">
+          <div class="runrow">
+            <button id="btnRun">▶ Run</button>
+            <button id="btnReset">↺ Reset</button>
+            <input type="range" id="speed" min="0.5" max="8" step="0.5" value="1">
+            <span id="speedLabel" style="color:var(--muted);font-size:12px">1×</span>
+          </div>
+          <div class="params" id="floodParams" style="display:none">
+            <label>Surge / ponding height: <strong id="surgeLabel" style="color:var(--ink)">6 m</strong></label>
+            <div class="row"><input type="range" id="surge" min="1" max="20" step="0.5" value="6" style="flex:1"></div>
+            <div class="row">
+              <button id="btnSurge">Trigger coastal surge</button>
+              <button id="btnRain">Extreme rainfall</button>
+            </div>
+            <label style="margin-top:4px">…or click the map to pond water locally.</label>
+          </div>
+          <div class="params" id="quakeParams" style="display:none">
+            <label>Magnitude: <strong id="magLabel" style="color:var(--ink)">M7.5</strong></label>
+            <div class="row"><input type="range" id="mag" min="6" max="9.5" step="0.1" value="7.5" style="flex:1"></div>
+            <div class="row"><button id="btnQuake">Trigger earthquake</button></div>
+          </div>
+          <div class="params">
+            <div class="row"><button id="btnPop">👥 Start population sim</button></div>
+            <div class="row" style="gap:14px">
+              <label><input type="checkbox" id="chkStations" checked> stations</label>
+              <label><input type="checkbox" id="chkAgents" checked> agents</label>
+            </div>
+          </div>
+          <div id="toolHint" class="hint" style="margin-top:8px">Click any cell to inspect it.</div>
+        </div>
+        <div class="box"><h4>Live stats</h4><div id="tiles"></div>
+          <div id="assumptions"></div>
+        </div>
+        <div class="box">
+          <h4>Wellbeing & unrest</h4>
+          <canvas id="spark" width="330" height="90"></canvas>
+          <div class="sparklegend">0–100<i style="background:#0ca30c"></i>avg wellbeing<i style="background:#d03b3b"></i>unrest %</div>
+          <div id="baselines"></div>
+        </div>
+        <div class="box"><h4>Inspector</h4><div id="inspect">Click a cell with the Inspect tool.</div></div>
+        <div class="box" id="capabilities"></div>
+        <div class="box"><h4>Event log</h4><div id="log"></div></div>
+      </div>
+    </div>
+  </div>
+  <div id="compareView" style="display:none"></div>
+</main>
+<script src="js/data.js"></script>
+<script src="js/citygen.js"></script>
+<script src="js/render.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/agents.js"></script>
+<script src="js/compare.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
