@@ -1,7 +1,7 @@
 /* main.js — app wiring: city selection, tabs, tools, sim loop, live stats. */
 (function () {
   const DATA = window.CITY_DATA;
-  const COLORS = { 'solaris': '#3987e5', 'meridian-s': '#199e70', 'civitas': '#c98500', 'meridian-f': '#9085e9' };
+  const COLORS = { 'solaris': '#3987e5', 'meridian-s': '#199e70', 'civitas': '#c98500', 'meridian-f': '#9085e9', 'resilient-city': '#d55181' };
 
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => [...document.querySelectorAll(s)];

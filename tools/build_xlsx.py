@@ -30,7 +30,7 @@ CENTER = Alignment(horizontal="center", vertical="top")
 thin = Side(style="thin", color="D9D9D9")
 BORDER = Border(left=thin, right=thin, top=thin, bottom=thin)
 
-CITY_COLORS = {"solaris": "3987E5", "meridian-s": "199E70", "civitas": "C98500", "meridian-f": "9085E9"}
+CITY_COLORS = {"solaris": "3987E5", "meridian-s": "199E70", "civitas": "C98500", "meridian-f": "9085E9", "resilient-city": "D55181"}
 
 ROWS = [
     ("— Scale & form —", None),
@@ -251,6 +251,7 @@ notes = [
     ("Meridian (Sonnet)", "claude-code-sonnet — fractal hex-of-hexes, 467k people"),
     ("CIVITAS", "claude-code-opus — single hexagon module, 250k people"),
     ("Meridian (Fable)", "claude-code-fable/worldwide-city — hex flower, 1M people"),
+    ("Resilient City (ChatGPT)", "chat-gpt-code/resilient-city — 5x5 square grid of 2 km districts, 1M people (added later; a ChatGPT design, not a Claude-model one)"),
 ]
 r = 3
 for a, b in notes:

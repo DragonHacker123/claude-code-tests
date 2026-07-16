@@ -1,13 +1,13 @@
 # City Design Sandbox
 
-An interactive stress-test of four independently-designed *self-sufficient,
+An interactive stress-test of five independently-designed *self-sufficient,
 worldwide-replicable city* blueprints, normalised to one schema and run through
 fire, flood, earthquake and a needs-based population simulation.
 
-The four source designs were each built from the same brief but by different
-models, and they disagree — in scale, in what they measure, and in how much
-detail they commit to. This project's whole point is to compare them **honestly**:
-where a design doesn't state a figure, it is marked `MISSING`, never inferred.
+The source designs were each built from the same brief but by different models,
+and they disagree — in scale, in what they measure, and in how much detail they
+commit to. This project's whole point is to compare them **honestly**: where a
+design doesn't state a figure, it is marked `MISSING`, never inferred.
 
 | Design | Source repo | Form | Population |
 |---|---|---|---|
@@ -15,6 +15,12 @@ where a design doesn't state a figure, it is marked `MISSING`, never inferred.
 | **Meridian (Sonnet)** | `claude-code-sonnet` | Fractal hex-of-hexes | 467,031 |
 | **CIVITAS** | `claude-code-opus` | Single hexagon module | 250,000 |
 | **Meridian (Fable)** | `claude-code-fable/worldwide-city` | Hex flower (7 districts) | 1,000,000 |
+| **Resilient City (ChatGPT)** | `chat-gpt-code/resilient-city` | Square 5×5 grid of 2 km districts | 1,000,000 |
+
+> The first four designs come from Claude models; **Resilient City was produced by
+> ChatGPT** and added later at the user's request. It was normalised and simulated
+> on exactly the same terms as the other four — no special treatment, and its gaps
+> are flagged the same way.
 
 ## Deliverables
 
@@ -97,7 +103,7 @@ figure is missing:
 
 # Data gaps found in the source repos
 
-Normalising four independent designs surfaced **45 missing figures** and several
+Normalising five independent designs surfaced **57 missing figures** and several
 structural incompatibilities. Here is what was missing and how each was handled.
 
 ## Missing-figure counts
@@ -106,8 +112,20 @@ structural incompatibilities. Here is what was missing and how each was handled.
 |---|---|---|
 | Meridian (Fable) | 5 | Lowest — richest, most quantified design |
 | Solaris | 10 | Fire/flood at **low** confidence (no spacing, no terrain) |
+| Resilient City (ChatGPT) | 12 | No seismic magnitude, no soft-storey ban, no tsunami height; strong on QoL/economy |
 | Meridian (Sonnet) | 14 | Flood tsunami height missing; fire OK via firebreaks |
 | CIVITAS | 16 | No seismic magnitude; flood defences unnumbered |
+
+The ChatGPT design normalises cleanly — it is one of the better-specified of the
+five, especially on quality-of-life SLOs, the economic model and emergency-response
+maths (it ships its own response-time script). Its gaps cluster in structural
+specifics: like CIVITAS it gives a seismic *performance framework* but no magnitude
+number; unlike Meridian (Fable/Sonnet) it never states an explicit soft-storey ban;
+and its flood strategy is deliberately *avoidance* (build landward of the inundation
+line) rather than a numbered barrier, so no design wave height exists to simulate
+against. It also keeps a gas network (auto-isolated, not eliminated), so it retains
+some post-quake ignition risk that Meridian (Fable) designs out. All of this is
+flagged in the UI, not smoothed over.
 
 The full per-figure list with reasons is in the **Data Gaps** sheet of the xlsx
 and in `data/normalized_cities.json` (`status: "missing"` entries).
@@ -144,8 +162,9 @@ of the Compare tab and the xlsx Overview:
 
 1. **Crime targets are different metrics.** Solaris: 15 *total* crimes/100k.
    Meridian (Sonnet): <150 *violent* crimes/100k. CIVITAS: <1 *homicide*/100k.
-   Meridian (Fable): <0.5 *homicide*/100k. Each carries a `metric` field; they are
-   never compared as a single number.
+   Meridian (Fable): <0.5 *homicide*/100k. Resilient City: <2 *homicide*/100k (plus
+   separate violent-victimisation and burglary sub-targets). Each carries a `metric`
+   field; they are never compared as a single number.
 2. **Response times use different definitions.** Some designs report travel-only
    time, others end-to-end (call → on-scene, including dispatch and turnout). Each
    figure carries a `definition` field noting which.

@@ -303,16 +303,74 @@ function genMeridianF() {
   return g;
 }
 
+/* ================= RESILIENT CITY (chat-gpt-code) =================
+ * ChatGPT's design: a 5×5 array of 2×2 km mixed-use districts (10×10 km,
+ * 1M people, 10,000/km²). One combined fire/medical/rescue station + a
+ * water/refuge tower per district; 5 hospitals (centre + 4 quadrant
+ * centres); 6–18 storeys; superblocks with a redundant street grid; green
+ * corridors double as firebreaks. Coastal variant: avoidance-first — an
+ * uninhabited wetland/floodable-park belt, development set landward. Block
+ * grid dimension is NOT stated, so a 400 m superblock grid is assumed. */
+function genResilientCity() {
+  const g = makeGrid(140, 80);            // 11.2 km span, 10 km city centred
+  const HALF = 5000;                       // 10×10 km urban square
+  const COAST_Y = 4600;                    // wetland belt seaward of this
+  const centers = [];
+  for (const gx of [-4000, -2000, 0, 2000, 4000])
+    for (const gy of [-4000, -2000, 0, 2000, 4000]) centers.push([gx, gy]);
+  const hospitals = [[0, 0], [-3000, -3000], [3000, -3000], [-3000, 3000], [3000, 3000]];
+  let resCells = 0;
+  for (let y = 0; y < g.n; y++) for (let x = 0; x < g.n; x++) {
+    const [wx, wy] = g.world(x, y); const i = g.idx(x, y);
+    if (wy > 5300) { g.zone[i] = Z.WATER; g.elev[i] = -5; continue; }
+    g.elev[i] = 6;
+    if (wy > COAST_Y) {                     // uninhabited wetland/floodable-park belt (avoidance-first, not a wall)
+      g.zone[i] = Z.BARRIER; g.firebreak[i] = 1; g.elev[i] = 8; continue;
+    }
+    if (Math.abs(wx) > HALF || wy < -HALF) { g.zone[i] = Z.OUTSIDE; continue; }
+    // nearest district centre
+    let dc = null, bd = 1e9;
+    for (const c of centers) { const d = Math.max(Math.abs(wx - c[0]), Math.abs(wy - c[1])); if (d < bd) { bd = d; dc = c; } }
+    const dCen = Math.hypot(wx - dc[0], wy - dc[1]);
+    // district-boundary green corridors / firebreaks (every 2 km, ±70 m)
+    const nearBoundaryX = Math.abs(((wx + 5000 + 1000) % 2000) - 1000) > 930;
+    const nearBoundaryY = Math.abs(((wy + 5000 + 1000) % 2000) - 1000) > 930;
+    if (nearBoundaryX || nearBoundaryY) { g.zone[i] = Z.GREEN; g.firebreak[i] = 1; continue; }
+    // district centre: combined emergency station + water/refuge tower + civic
+    if (dCen < 150) { g.zone[i] = Z.CIVIC; g.storeys[i] = 8; g.mat[i] = MAT.CONCRETE; g.critical[i] = 1; continue; }
+    // a neighbourhood park near each centre (green within 300 m)
+    if (dCen > 250 && dCen < 360 && ((x + y) % 3 === 0)) { g.zone[i] = Z.GREEN; g.firebreak[i] = 1; continue; }
+    // superblock grid: streets on a ~400 m lattice (ASSUMED — not stated)
+    const sbx = ((wx % 400) + 400) % 400, sby = ((wy % 400) + 400) % 400;
+    if (sbx < 80 || sby < 80) { g.zone[i] = Z.STREET; continue; }
+    // residential/mixed-use perimeter fabric, 6–18 storeys (taller near centre)
+    g.zone[i] = Z.RES_MED;
+    g.storeys[i] = dCen < 700 ? (hash2(x, y) < 0.2 ? 16 : 10) : (hash2(x, y) < 0.15 ? 12 : 7);
+    g.mat[i] = hash2(x + 7, y) < 0.4 ? MAT.TIMBER : MAT.MIXED;   // engineered timber or RC (stated)
+    if (hash2(x, y + 3) < 0.06) g.critical[i] = 1;               // selected base-isolated residential (stated)
+    g.pop[i] = -1; resCells++;
+  }
+  const perCell = 1000000 / Math.max(1, resCells);
+  for (let i = 0; i < g.pop.length; i++) if (g.pop[i] < 0) g.pop[i] = perCell;
+  // 25 combined stations at district centres; 5 hospitals; water/refuge towers co-located
+  for (const [cx, cy] of centers) g.stations.push({ wx: cx, wy: cy, kind: 'fire' });
+  for (const [cx, cy] of hospitals) g.stations.push({ wx: cx + 120, wy: cy + 120, kind: 'hospital' });
+  g.coast = { dir: 'south', barrierElev: 8, surfaceElev: 6, barrierAssumed: true };
+  g.coastLine = 5300;
+  return g;
+}
+
 const CITY_BUILDERS = {
   'solaris': genSolaris,
   'meridian-s': genMeridianS,
   'civitas': genCivitas,
   'meridian-f': genMeridianF,
+  'resilient-city': genResilientCity,
 };
 
 /* stated on-map population per design (Solaris: 520k minus 50k rotational
  * hinterland workers who live outside the mapped 25 km city) */
-const POP_TARGET = { 'solaris': 470000, 'meridian-s': 467031, 'civitas': 250000, 'meridian-f': 1000000 };
+const POP_TARGET = { 'solaris': 470000, 'meridian-s': 467031, 'civitas': 250000, 'meridian-f': 1000000, 'resilient-city': 1000000 };
 
 /* neutral geography applied identically to all four cities: land rises gently
  * inland from the coast (0.7 m/km). None of the designs maps terrain heights;
