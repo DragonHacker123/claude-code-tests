@@ -1,0 +1,536 @@
+
+<style>
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#171a21; --ink2:#4a5060; --muted:#7c8494;
+  --line:#e3e6ec; --line2:#eef0f4; --accent:#2f5d8a;
+  --miss-bg:#fdeee6; --miss-ink:#b4531f; --miss-line:#eeb591;
+  --der:#2f6fbf;
+  --shadow:0 1px 2px rgba(20,28,45,.05),0 8px 24px rgba(20,28,45,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme=light])){
+    --bg:#0f1216; --panel:#171b21; --ink:#f2f4f8; --ink2:#b7bfce; --muted:#828b9c;
+    --line:#262c35; --line2:#1e232b; --accent:#7fb0e0;
+    --miss-bg:#2a1c14; --miss-ink:#e79463; --miss-line:#5a3a26; --der:#7fb0e0;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme=dark]{
+  --bg:#0f1216; --panel:#171b21; --ink:#f2f4f8; --ink2:#b7bfce; --muted:#828b9c;
+  --line:#262c35; --line2:#1e232b; --accent:#7fb0e0;
+  --miss-bg:#2a1c14; --miss-ink:#e79463; --miss-line:#5a3a26; --der:#7fb0e0;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-text-size-adjust:100%;}
+.wrap{max-width:1040px;margin:0 auto;padding:22px 16px 60px}
+.masthead{padding:14px 0 20px;border-bottom:1px solid var(--line)}
+.eyebrow{margin:0 0 8px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:650}
+h1{margin:0 0 12px;font-size:clamp(24px,5.5vw,38px);line-height:1.12;letter-spacing:-.02em;text-wrap:balance;font-weight:750}
+.lede{margin:0;max-width:64ch;color:var(--ink2);font-size:clamp(15px,3.4vw,17px)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 4px}
+.chip{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);
+  border-left:3px solid var(--c);border-radius:10px;padding:8px 12px;box-shadow:var(--shadow)}
+.chip .dot{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none}
+.cname{font-weight:650;font-size:14px}
+.cmeta{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.warn{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  margin:18px 0 8px;padding:2px 16px;box-shadow:var(--shadow)}
+.warn summary{cursor:pointer;font-weight:650;padding:12px 0;color:var(--ink);font-size:14.5px}
+.warn ul{margin:0 0 14px;padding-left:20px;color:var(--ink2)}
+.warn li{margin:6px 0;font-size:14px}
+h2.sec{margin:34px 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:700;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.fig{padding:14px 0;border-bottom:1px solid var(--line2)}
+.figname{font-weight:650;font-size:15px;margin-bottom:10px}
+.vals{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media(max-width:860px){.vals{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:460px){.vals{grid-template-columns:1fr}}
+.cell{background:var(--panel);border:1px solid var(--line);border-top:2px solid var(--c);
+  border-radius:9px;padding:9px 11px;min-width:0}
+.cell.ismiss{background:var(--miss-bg);border-color:var(--miss-line);border-top-color:var(--miss-line)}
+.clab{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);
+  font-weight:600;margin-bottom:5px;text-transform:uppercase;letter-spacing:.03em}
+.clab .dot{width:7px;height:7px;border-radius:50%;background:var(--c);flex:none}
+.cval{font-size:14px;line-height:1.4;overflow-wrap:break-word}
+.cval .v{font-weight:600;font-variant-numeric:tabular-nums}
+.unit{color:var(--muted);font-weight:400;font-size:12.5px}
+.miss{display:inline-block;background:transparent;color:var(--miss-ink);border:1px solid var(--miss-ink);
+  border-radius:20px;padding:0 8px;font-size:10.5px;font-weight:700;letter-spacing:.05em;vertical-align:middle}
+.miss.inline{padding:0 6px}
+.der{display:inline-block;margin-left:6px;color:var(--der);border:1px solid var(--der);
+  border-radius:20px;padding:0 7px;font-size:10px;font-weight:600;vertical-align:middle}
+.reason{display:block;margin-top:4px;color:var(--muted);font-size:12px;line-height:1.35}
+.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+code{background:var(--line2);padding:1px 5px;border-radius:4px;font-size:12.5px}
+</style>
+
+<main class="wrap">
+<header class="masthead">
+<p class="eyebrow">Normalised comparison</p>
+<h1>Five self-sufficient city blueprints, one honest schema</h1>
+<p class="lede">Four designs from Claude models (Haiku, Sonnet, Opus, Fable) and one from ChatGPT, each built from the same brief. Where a design does not state a figure it is marked <span class="miss inline">MISSING</span> — never inferred.</p>
+</header>
+<section class="legend">
+<div class="chip" style="--c:#3987e5"><span class="dot"></span><span class="cname">Solaris</span><span class="cmeta">520,000 · 10 gaps</span></div>
+<div class="chip" style="--c:#199e70"><span class="dot"></span><span class="cname">Meridian (Sonnet)</span><span class="cmeta">467,031 · 15 gaps</span></div>
+<div class="chip" style="--c:#c98500"><span class="dot"></span><span class="cname">CIVITAS</span><span class="cmeta">250,000 · 16 gaps</span></div>
+<div class="chip" style="--c:#9085e9"><span class="dot"></span><span class="cname">Meridian (Fable)</span><span class="cmeta">1,000,000 · 5 gaps</span></div>
+<div class="chip" style="--c:#d55181"><span class="dot"></span><span class="cname">Resilient City (ChatGPT)</span><span class="cmeta">1,000,000 · 13 gaps</span></div>
+</section>
+<details class="warn" open><summary>Read first — why some columns aren't directly comparable</summary><ul>
+<li>CRIME TARGETS ARE NOT DIRECTLY COMPARABLE: Solaris targets 15 total crimes/100k/yr, Meridian-S targets &lt;150 VIOLENT crimes/100k/yr, and CIVITAS, Meridian-F and Resilient City target homicide rates (&lt;1, &lt;0.5 and &lt;2 per 100k/yr respectively — Resilient City also sets violent-victimisation and burglary sub-targets). These are different metrics.</li>
+<li>RESPONSE TIMES ARE NOT DIRECTLY COMPARABLE: definitions differ — Solaris reports simulated travel medians, Meridian-S reports travel-to-farthest-resident seconds, CIVITAS reports end-to-end (call to on-scene) including dispatch+turnout, Meridian-F reports turnout+travel. Each figure carries a &#x27;definition&#x27; field.</li>
+<li>DENSITY BASIS DIFFERS: Solaris&#x27;s 1,965 km2 footprint includes agricultural rings inside the city boundary; the other three exclude their hinterland from the urban area. Solaris does not state a built-up-only density.</li>
+</ul></details>
+<h2 class="sec">Scale &amp; form</h2>
+<div class="fig">
+<div class="figname">Population</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">520,000 <span class="unit">people</span></span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">467,031 <span class="unit">people</span></span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">250,000 <span class="unit">people</span></span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">1,000,000 <span class="unit">people</span></span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">1,000,000 <span class="unit">people</span></span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Urban area (km²)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">1965 <span class="unit">km2</span></span><span class="reason">includes agricultural Rings 3-4 inside the 25 km radius</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">54.0 <span class="unit">km2</span></span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">18.0 <span class="unit">km2</span></span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">54.5 <span class="unit">km2</span></span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">100 <span class="unit">km2</span></span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Gross density (/km²)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">265 <span class="unit">people/km2</span></span><span class="der">derived</span><span class="reason">whole-footprint average incl. farm rings; built-up-only density NOT stated in repo</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">8650 <span class="unit">people/km2</span></span><span class="reason">city-wide average incl. buffers</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">13,900 <span class="unit">people/km2</span></span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">18,300 <span class="unit">people/km2</span></span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">10,000 <span class="unit">people/km2</span></span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Built-up density (/km²)</div>
+<div class="vals">
+<div class="cell ismiss" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="miss">MISSING</span><span class="reason">masterplan gives ring populations and radii but never a built-up density figure</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">22,000 <span class="unit">people/km2</span></span><span class="reason">cell-level gross residential density</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">13,900 <span class="unit">people/km2</span></span><span class="reason">Barcelona Eixample cited at ~35,000/km2 net as the typology ceiling</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">30,000 <span class="unit">people/km2 net residential (typology figure)</span></span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">20000-35000 <span class="unit">people/km2 (inhabited mixed-use portions)</span></span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Hinterland (km²)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">68,700 <span class="unit">km2</span></span><span class="der">derived</span><span class="reason">repo states &#x27;1.2M hectares&#x27; (12,000 km2) for resource extraction within it</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">388 <span class="unit">km2 farmland (7.2x city) + 17.8 km2 aquaculture bay</span></span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">244 <span class="unit">km2 (217 farm + 27 energy; total region 262 km2, ~9 km radius)</span></span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">1250 <span class="unit">km2 (~20 km radius)</span></span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">4000 <span class="unit">km2 (reference; range 3,500-4,500)</span></span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Typical storeys</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">8-35 by ring</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">6-10 (housing); 25-30 landmark towers at district hubs only</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">5-8 perimeter blocks; landmark tower + vertical farms taller</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">6-8 perimeter blocks; 12-20 storey clusters within 400 m of district hubs</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">6-18 storeys; taller towers exceptional</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Materials</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">CLT or reinforced concrete (ductile detailing)</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">ductile reinforced concrete or mass timber moment frames with shear walls</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">RC/steel ductile frames; CLT mid-rise where forestry supplies; rammed earth/CSEB; geopolymer cement</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">engineered mass timber (CLT) or reinforced concrete, strong-column/weak-beam</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">ductile reinforced concrete, steel or engineered timber; low-clinker cement, reclaimed aggregate, electric-furnace recycled metal</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Street width (m)</div>
+<div class="vals">
+<div class="cell ismiss" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="miss">MISSING</span><span class="reason">&#x27;strict building separation distances&#x27; asserted in §10.1 but no number anywhere</span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">cell geometry and 180 m inter-district buffers stated; street cross-sections not</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">block typology described; street cross-sections not dimensioned</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">20 <span class="unit">m</span></span></div></div>
+<div class="cell ismiss" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">superblocks + redundant street grid described; no street cross-section dimension stated</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Building spacing</div>
+<div class="vals">
+<div class="cell ismiss" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="miss">MISSING</span><span class="reason">no spacing, setback, or block-grid dimension stated — fire-spread modelling for Solaris is low-confidence</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">180 m green buffers between districts (double as firebreaks); shared green edge around each cell</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">perimeter-block courtyards implied; no block-grid dimension given</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">~130 m perimeter-block grid, 20 m streets</span><span class="reason">best-specified spread geometry of the four designs</span></div></div>
+<div class="cell ismiss" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">2×2 km districts with superblocks and a redundant utility/transit street grid stated, but no block-grid dimension — fire-spread geometry approximated</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Gas grid / ignition</div>
+<div class="vals">
+<div class="cell ismiss" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="miss">MISSING</span><span class="reason">post-quake fire ignition source unaddressed (Meridian-F explicitly bans gas; Solaris silent)</span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">not reported in source repo</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">buried utilities stated for wind; gas not addressed</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">none — all-electric city, gas omitted to remove post-quake ignition (Kobe lesson)</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">mostly electrified (transport/heating/industry); automatic gas &amp; hazardous-process isolation — gas not fully eliminated</span><span class="reason">unlike Meridian-F&#x27;s outright gas ban, gas is present but auto-isolated — some post-quake ignition risk retained</span></div></div>
+</div></div>
+<h2 class="sec">Structural resilience</h2>
+<div class="fig">
+<div class="figname">Seismic design basis</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">9.0 Mw</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">M9-class subduction (coastal Pacific-Rim worst case)</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">MCE — Life Safety for residential, Immediate Occupancy for lifelines</span><span class="reason">framework stated; no magnitude number (region-tuned by design)</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">site MCE, e.g. M8+ subduction or M7 crustal; microzonation &lt;=200 m mandatory before construction</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">site-specific performance-based: Immediate Occupancy (frequent), Repairable (design-basis), No Collapse (MCE), No Progressive Collapse (beyond-design)</span><span class="reason">framework stated but NO magnitude number (region-tuned) — sim assumes generic M8.0 MCE, flagged</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Base isolation scope</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">all buildings &gt;=8 storeys</span><span class="reason">broadest isolation scope of the four designs</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">critical/hub buildings only (hospitals, schools, fire/EMS stations, civic core)</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">hospital, 7 emergency hubs, civic tower, evacuation towers</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">hospitals, all 33 micro-stations, water/energy control nodes, district civic halls</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">hospitals, control centres, water plants, refuge buildings, and selected residential/civic buildings</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Soft-storey ban</div>
+<div class="vals">
+<div class="cell ismiss" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="miss">MISSING</span><span class="reason">not addressed (waterfront buildings deliberately have open lower storeys for tsunami)</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">yes</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">strong-column/weak-beam stated; explicit soft-storey prohibition not stated (seaward pilotis blocks are deliberately open-ground)</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">yes</span></div></div>
+<div class="cell ismiss" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">capacity design + strong-column/weak-beam stated, but no explicit soft-storey prohibition (contrast Meridian-F/S which ban it outright)</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Drift capacity (m)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">1.5 <span class="unit">m lateral</span></span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">not reported in source repo</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">not reported in source repo</span></div></div>
+<div class="cell ismiss" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">not reported in source repo</span></div></div>
+<div class="cell ismiss" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">not reported in source repo</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Quake survival target (%)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">99.5 <span class="unit">% at 9.0 Mw</span></span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">no quantified survival target; qualitative performance goals only</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">not reported in source repo</span></div></div>
+<div class="cell ismiss" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">no % survival target; instead a functional target — lattice still serves city with 25% of stations destroyed (computed)</span></div></div>
+<div class="cell ismiss" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">qualitative &#x27;no collapse at MCE / no progressive collapse beyond design&#x27;; no % survival figure</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Tsunami design height (m)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">15 <span class="unit">m</span></span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">refuge storeys &#x27;above the design tsunami height&#x27; and high-ground network at +15-20 m stated, but the design wave height itself is never given</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">layered defence + FEMA P-646 refuges stated; design wave height region-tuned, never numbered</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">15 <span class="unit">m (berm at +15 m; habitable floors above +15 m; 1-in-1000-yr design basis)</span></span></div></div>
+<div class="cell ismiss" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">defence is avoidance (build landward of the site-specific extreme inundation line); the inundation height itself is never numbered</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Flood defence layers</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">5 m artificial dunes + mangroves + breakwaters; open lower 3 storeys within 2 km of coast; roof evacuation; 2-min sensor warning</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">dune+mangrove buffer; seawall with retractable surge gate; elevated ring road berm; refuge storey per building; critical services on +15-20 m podium network</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">forested berm + mangroves/dunes; core on raised terp; sacrificial flow-through pilotis on seaward blocks; vertical refuges within 5-min walk</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">living shoreline; +15 m landscape berm; sacrificial 400 m waterfront band (no ground-floor housing); vertical evacuation within 10-min walk; wedges as floodways</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">avoidance-first: uninhabited wetland/dune/floodable-park belt; development landward of extreme inundation line; raised redundant high-ground route; vertical-evacuation structures; breakaway ground-floor walls on edge structures; scour-designed deep foundations; independent-power drainage pumps; local detection</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Site elevation data</div>
+<div class="vals">
+<div class="cell ismiss" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="miss">MISSING</span><span class="reason">no ground elevations, drainage capacities, or inundation map — flood simulation is low-confidence and defence-layer-based only</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">partial — critical podium network at +15-20 m stated; no terrain map</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">partial — &#x27;urban core sits on raised ground (engineered terp)&#x27;; no heights given</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">partial — berm +15 m, habitable floors +15 m, wedges as stormwater basins/floodways; no full terrain map</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">partial — critical facilities on strongest ground above credible flood levels; raised high-ground evacuation route; no terrain map</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Stormwater drainage</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">radial canal corridors</span><span class="reason">no capacity figures</span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">buffers include &#x27;drainage swales&#x27; (geometry script) but no capacities</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">looped utilidor network with sectionalising valves (water); stormwater not separately specified</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">stormwater basins in green wedges; rooftop catchment mandated (L19)</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">dedicated third network for stormwater &amp; flood conveyance; gravity drainage + independent-power pumps; looped water network with district cisterns</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Wind design</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">Category 5 / 250 km/h sustained</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">Category 5-equivalent; Miami-Dade continuous load path; TMD/TLD on landmark towers</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">typhoon/hurricane package: aerodynamic massing, continuous load path (Miami-Dade), impact glazing, buried utilities</span><span class="reason">no design wind speed number</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">250 km/h 3-s gust (Saffir-Simpson 5); Miami-Dade envelope; underground grid; TMD on tall buildings</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">greater of local code event or site-specific study; continuous load path, impact-rated glazing, hip roofs, refuge rooms; higher importance factor for critical buildings</span><span class="reason">no single design wind speed number</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Firebreaks</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">pocket parks every 200 m; radial canal corridors</span><span class="reason">not designed as firebreaks; canal corridors are stormwater+recreation</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">inter-district green corridors explicitly noted as firebreaks</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">farm belt is &#x27;polyculture mosaic with firebreaks&#x27; (hinterland); urban firebreaks not specified</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">six green wedges explicitly double as firebreaks, floodways, staging areas</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">green corridors double as firebreaks (planted to avoid continuous dry-fuel paths); district-boundary green strips</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Green cover (%)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">35 <span class="unit">%</span></span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">&gt;=12 m2 green within 5-min walk stated as QoL floor, but no city-wide % figure</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">30 <span class="unit">% tree canopy minimum</span></span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">30 <span class="unit">% canopy per neighbourhood (3-30-300 rule)</span></span></div></div>
+<div class="cell ismiss" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">green access set as ratios (&gt;=30 m2/resident across scales, &gt;=10 m2 within the urban boundary, park within 300 m) but no city-wide canopy % figure</span></div></div>
+</div></div>
+<h2 class="sec">Emergency response</h2>
+<div class="fig">
+<div class="figname">Fire stations</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">17</span><span class="reason">16 in habitable city + 1 hinterland</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">6 district main fire/EMS stations + ~43 cell-hub micro-posts (paramedic e-bike + AED drone)</span><span class="der">derived</span><span class="reason">exact station count not printed as a single number in repo</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">7</span><span class="reason">integrated fire+EMS+police hubs: 1 civic core + 1 per district; plus AEDs within 200 m and drone defibrillators</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">33</span><span class="reason">micro-stations on ~1.4 km triangular lattice; cross-trained fire/EMS/community-police crews of 6-8; base-isolated, solar+battery islanded</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">25</span><span class="reason">one combined fire/medical/rescue station at every 2×2 km district centre</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Fire response median (min)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">4.2 <span class="unit">min</span></span><span class="reason">simulated median, habitable city, K-medians station placement + 1,000 random incidents</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">2.0 <span class="unit">min</span></span><span class="reason">median travel to residents WITH cell micro-posts, uncongested graph model; district-hub-only average-to-farthest is 238 s</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">3.71 <span class="unit">min</span></span><span class="reason">END-TO-END call-to-on-scene (75 s dispatch + 70 s turnout + travel at 45 km/h, 1.35x detour, 200k Monte-Carlo incidents)</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">2.4 <span class="unit">min</span></span><span class="reason">turnout (75 s) + travel at 36 km/h, BFS on 100 m street grid; mean 2.3</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">3.96 <span class="unit">min</span></span><span class="reason">computed indicative fire arrival: 60 s dispatch + 75 s turnout + expected 1 km Manhattan at 35 km/h; ambulance equivalent 3.46 min</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Fire response tail (min)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">5.2 <span class="unit">min</span></span><span class="reason">95th percentile, habitable city</span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">model reports median and zero-points-over-300s, not a p95</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">4.32 <span class="unit">min</span></span><span class="reason">end-to-end p95; p90 4.22; worst case 4.83; travel-only p90 108 s vs NFPA 240 s</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">2.8 <span class="unit">min (p90; max 3.9)</span></span><span class="reason">p90 reported, not p95</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">7.05 min worst-corner (degraded 25 km/h roads); target 90% &lt;5 min</span><span class="reason">explicit p95 not printed; the repo&#x27;s script computes percentiles but the doc reports mean + worst-corner</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">EMS response median (min)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">5.1 <span class="unit">min</span></span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">2.0 <span class="unit">min</span></span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">3.71 <span class="unit">min</span></span><span class="reason">end-to-end</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">2.4 <span class="unit">min</span></span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">3.46 <span class="unit">min</span></span><span class="reason">computed: 45 s dispatch + 60 s turnout + 1 km at 35 km/h</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Ambulances</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">40</span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">not reported in source repo</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">hubs co-locate EMS; vehicle counts not given</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">33</span></div></div>
+<div class="cell ismiss" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">combined stations described; ambulance/vehicle counts not given</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Police response (min)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">8 <span class="unit">min</span></span><span class="reason">target, not simulated</span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">policing legitimacy/accountability specified; response times and station counts are not</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">3.71 <span class="unit">min (same hubs)</span></span><span class="der">derived</span><span class="reason">end-to-end median, shared infrastructure</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">2.4 <span class="unit">min (community police in same stations)</span></span><span class="der">derived</span></div></div>
+<div class="cell ismiss" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">policing reoriented to harm reduction; no police response-time target and no separate police stations (folded into the 25 district stations)</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Police stations</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">12</span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">not reported in source repo</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">7</span><span class="der">derived</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">33</span><span class="der">derived</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">combined into the 25 district stations (no separate police stations)</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Hospitals</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">1 Level-1 trauma (1,200 beds) + 6 district (300 beds) + 25 urgent-care</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">1 per district hub (6) + none solely in civic core (deliberate)</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">1 Level-1 trauma (civic core) + district clinics</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">4 (core + 3 alternating petals); p99 transport &lt;=10 min; N+1 paired capacity</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">5 (city centre + 4 quadrant centres) + local stabilisation clinics</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Degraded-response analysis</div>
+<div class="vals">
+<div class="cell ismiss" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="miss">MISSING</span><span class="reason">no post-earthquake / station-loss response analysis (contrast: Meridian-F and Meridian-S both model it)</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">double failure (district hub + civic core down): 454 s mean mutual aid — stated as accepted limitation; 72 h cell reserves are the fallback</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">islandable microgrids and looped utilidors stated for lifelines, but no station-loss response-time analysis</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">25% of stations destroyed: mean 2.6 / p90 3.6 / max 4.9 min — still beats intact 7-station design (computed)</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">degraded-road (25 km/h) worst-corner 7.05 min; no emergency facility dependent on one bridge/pipe/substation/data link; &gt;=2 physically separate routes into every district</span></div></div>
+</div></div>
+<h2 class="sec">Crime, economy, society</h2>
+<div class="fig">
+<div class="figname">Crime target</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">15 <span class="unit">crimes per 100k/yr</span> <span class="unit">[total crime/100k]</span></span><span class="reason">NOT comparable to others: 15 TOTAL crimes/100k is far below any real city (Tokyo cited in-repo at 25/100k); treat as the design&#x27;s own claim</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">150 <span class="unit">violent crimes per 100k/yr</span> <span class="unit">[violent crime/100k]</span></span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">1 <span class="unit">homicides per 100k/yr</span> <span class="unit">[homicide/100k]</span></span><span class="reason">&#x27;below ~1/100k&#x27; + overall crime at low end of OECD (qualitative)</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">0.5 <span class="unit">homicides per 100k/yr</span> <span class="unit">[homicide/100k]</span></span><span class="reason">plus overall victimisation &lt;50% of host-nation baseline</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">2 <span class="unit">homicides per 100k/yr</span> <span class="unit">[homicide/100k]</span></span><span class="reason">multi-metric target: also serious violent victimisation &lt;10/1,000/yr and residential burglary &lt;5/1,000 households/yr</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Incarceration target (/100k)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">50 <span class="unit">prisoners per 100k</span></span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">restorative-first track stated; no incarceration-rate number</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">incarceration &#x27;last resort&#x27;; no rate target</span></div></div>
+<div class="cell ismiss" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">custody &#x27;reserved for danger&#x27;; Norway ~20% recidivism benchmark; no rate number</span></div></div>
+<div class="cell ismiss" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">prisons &#x27;reserved primarily for continuing serious risk&#x27;; no incarceration-rate number</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Economic model</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">Hybrid cooperative capitalism</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">Commons/market hybrid (3 tiers)</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">Stakeholder market on a universal foundation</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">Market Georgism with a universal floor</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">Constitutional social-market and commons economy</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Gini target</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">0.28</span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">not reported in source repo</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">&#x27;compresses inequality by construction&#x27; — no number</span></div></div>
+<div class="cell ismiss" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">&#x27;inequality compression&#x27; is lever #1 but no Gini number</span></div></div>
+<div class="cell ismiss" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">contentment thresholds set (&gt;=80% life satisfaction, no quintile gap) but no Gini figure</span></div></div>
+</div></div>
+<h2 class="sec">Self-sufficiency</h2>
+<div class="fig">
+<div class="figname">Energy demand avg (MW)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">1200 <span class="unit">MW</span></span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">peak stated, average not</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">266 <span class="unit">MW</span></span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">630 <span class="unit">MW</span></span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">913 <span class="unit">MW</span></span><span class="der">derived</span><span class="reason">generation sized to ~12 TWh/yr (~1.37 GW avg) for storage losses/reserve</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Energy demand peak (MW)</div>
+<div class="vals">
+<div class="cell ismiss" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="miss">MISSING</span><span class="reason">not reported in source repo</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">685 <span class="unit">MW design peak</span></span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">532 <span class="unit">MW</span></span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">1500 <span class="unit">MW</span></span></div></div>
+<div class="cell ismiss" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">no peak load stated; the 2.5 GW figure is an emergency-demand / firm-capability target, not a peak load</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Energy mix</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">solar 40%, wind 35%, geothermal 15%, hydro 10% <span class="unit">% annual</span></span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">offshore_wind 55%, solar 30%, tidal_wave_biogas 15% <span class="unit">% supply</span></span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">solar PV + wind (dual-use farmland) + geothermal/biogas firm; 1.7x overbuild for seasonal storage via green H2</span><span class="reason">no percentage split stated — region-tuned</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">rooftop PV ~1 GWp + 25 km2 hinterland agrivoltaics + wind where available + firm block (geothermal, 2 SMRs, or biomass CHP)</span><span class="reason">no % split — firm block sized by geography</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">locally selected portfolio: solar, wind, geothermal, hydro, waste biogas, biomass backup, nuclear only if the no-import rule is genuinely met; &gt;=2.5 GW firm; no single plant &gt;15% of firm capacity</span><span class="reason">no percentage split — region-tuned</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Battery storage (GWh)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">10 <span class="unit">GWh</span></span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">3.4 <span class="unit">GWh (~8 h average load)</span></span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">batteries + pumped hydro + H2 + biogas named; capacities not</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">4 <span class="unit">GWh + seasonal sand/water thermal pits</span></span></div></div>
+<div class="cell ismiss" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">explicitly declines a single battery figure: a 72 h / 180 GWh reserve is stated to be &#x27;too large as lithium batteries alone&#x27;, met instead by batteries + thermal + water + dispatchable generation + hydrogen</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Energy autonomy (days)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">21 <span class="unit">days</span></span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">0.33 <span class="unit">days (8 h battery)</span></span><span class="der">derived</span><span class="reason">no multi-day autonomy claim made</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">not reported in source repo</span></div></div>
+<div class="cell ismiss" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">72 h islanding per district for critical loads stated; whole-city autonomy days not</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">3 <span class="unit">days</span></span><span class="reason">72 h electrical reserve target + 72 h passive building survivability</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Water demand (m³/day)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">2,500,000 <span class="unit">m3/day</span></span><span class="reason">city + agriculture</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">130,800 <span class="unit">m3/day</span></span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">33,700 <span class="unit">m3/day</span></span><span class="der">derived</span><span class="reason">85% closed-loop reuse; fresh make-up only 1.85 Mm3/yr</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">128,767 <span class="unit">m3/day municipal</span></span><span class="der">derived</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">150,000 <span class="unit">m3/day domestic</span></span><span class="reason">treatment capacity &gt;=200,000 m3/day; industry &amp; agriculture on separate budgets</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Water sources</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">rainfall 60%, desalination 25%, recycling 15%</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">rainfall 59%, recycling 40%, desalination 1%</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">recycling 85%, rain_and_aquifer 15% <span class="unit">% approx</span></span><span class="der">derived</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">rooftop catchment (mandated) + wedge reservoirs + 40% potable reuse; desal only for coastal-arid instances</span><span class="reason">no full % split of the stack</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">protected upland catchments, sustainable-yield groundwater, rainwater, reclaimed wastewater, coastal desalination (fallback), seasonal reservoirs &amp; managed aquifer recharge</span><span class="reason">no percentage split; three-network potable/reclaimed/stormwater system</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Water reserve (days)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">180 <span class="unit">days</span></span></div></div>
+<div class="cell ismiss" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="miss">MISSING</span><span class="reason">72 h cell-hub reserves stated for emergencies; no city-level reserve-days figure</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">not reported in source repo</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">3 <span class="unit">days (72 h per district, L14)</span></span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">180 <span class="unit">days (regional; district storage &gt;=7 days)</span></span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Food self-sufficiency</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">100% vegetables+protein, 60% grains target stated in §3.2 header, but §3.2 also claims 2.25 Mt/yr grain surplus; iteration 8 found 50% of meat must be imported</span><span class="reason">internally inconsistent between sections; recorded as stated</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">life-critical necessities only, explicitly scoped; staples from 388 km2 hinterland at realistic yields; vertical farms greens-only (88.8 ha)</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">full calories from 217 km2 regenerative farmland (2,500 kcal +30% loss); CEA for perishables only (479 GWh/yr)</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">98% of calories from ~1,000 km2 hinterland (plant-forward, 800-1,000 m2/person); vertical farms ~2% of calories (200 ha)</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">sized to 110% of caloric need (963.6 Tcal/yr for 1M @ 2,400 kcal/day); plant-forward; 4,000 km² hinterland; urban farms for perishables only (not staple calories)</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Food reserve (months)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">6 <span class="unit">months (extendable to 12)</span></span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">0.1 <span class="unit">months (72 h per cell hub)</span></span><span class="reason">no long-term strategic food reserve stated — only 72 h local stocks</span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">&#x27;strategic stockpiles&#x27; named for high-tech inputs; food reserve duration not stated</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">18 <span class="unit">months staple grain per district</span></span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">12 <span class="unit">months staple calories (strategic reserve)</span></span></div></div>
+</div></div>
+<h2 class="sec">Quality of life</h2>
+<div class="fig">
+<div class="figname">Housing floor (m²/person)</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">30 <span class="unit">m2</span></span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">35 <span class="unit">m2</span></span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">28 <span class="unit">m2</span></span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">35 <span class="unit">m2 net + &gt;=2 rooms/household + 2 h direct sun</span></span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">35 <span class="unit">m2 (35 one adult, 50 two adults, +12 per extra resident)</span></span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Noise limits</div>
+<div class="vals">
+<div class="cell ismiss" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="miss">MISSING</span><span class="reason">&#x27;strict noise codes&#x27; asserted, no numbers</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">&lt;=55 dB facades / &lt;=45 dB courtyards</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">&lt;=55 dB day outdoors / &lt;=30 dB indoors night</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">&lt;=55 dB(A) day / 45 night at every facade; quiet side mandatory</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">&lt;=30 dBA bedroom at night; &lt;=45 dBA exterior residential night where feasible</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Commute target</div>
+<div class="vals">
+<div class="cell" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="v">median 25 min edge-to-centre transit</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">&gt;=90% within 15-minute walk/bike/transit of daily needs</span></div></div>
+<div class="cell" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="v">15-minute walk for daily life; any cross-city trip &lt;=15 min</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">median &lt;=22 min door-to-door, p90 &lt;=35 min; 90% within 15-min walk of daily needs</span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">median &lt;15 min; p90 &lt;25 min; daily-needs trip &lt;10 min for 90%; 100% of homes within 400 m of daily needs or transit</span></div></div>
+</div></div>
+<div class="fig">
+<div class="figname">Local emergency reserves</div>
+<div class="vals">
+<div class="cell ismiss" style="--c:#3987e5"><div class="clab"><span class="dot"></span>Solaris</div><div class="cval"><span class="miss">MISSING</span><span class="reason">no per-neighbourhood 72h reserve concept; city-level reserves only</span></div></div>
+<div class="cell" style="--c:#199e70"><div class="clab"><span class="dot"></span>Meridian (Sonnet)</div><div class="cval"><span class="v">72 <span class="unit">hours (water/food/first-aid per cell hub)</span></span></div></div>
+<div class="cell ismiss" style="--c:#c98500"><div class="clab"><span class="dot"></span>CIVITAS</div><div class="cval"><span class="miss">MISSING</span><span class="reason">islandable district microgrids stated for power; water/food local reserve duration not stated</span></div></div>
+<div class="cell" style="--c:#9085e9"><div class="clab"><span class="dot"></span>Meridian (Fable)</div><div class="cval"><span class="v">72 <span class="unit">hours water per district + 7 d food distribution capacity (L14)</span></span></div></div>
+<div class="cell" style="--c:#d55181"><div class="clab"><span class="dot"></span>Resilient City (ChatGPT)</div><div class="cval"><span class="v">168 <span class="unit">hours (7 days district potable water; + 72 h passive survivability)</span></span></div></div>
+</div></div>
+<footer class="foot">Generated 2026-07-14 from <code>data/normalized_cities.json</code> (schema v1.0). The full spreadsheet is <code>city_comparison.xlsx</code>.</footer>
+</main>
