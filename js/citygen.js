@@ -360,17 +360,99 @@ function genResilientCity() {
   return g;
 }
 
+/* ================= HEARTH (claude-code-opus, Opus 5) =================
+ * Hexagon circumradius 2,630 m (17.97 km², 5.26 km across), 250,000 people —
+ * the same outer hexagon as CIVITAS, but a completely different interior:
+ * 6 districts × 10 wards = 60 ward hubs, each within a 5-min walk; a 100 m
+ * block lattice with 12 m lanes / 22 m collectors (400 m) / 34 m avenues
+ * (800 m); land is 25% street, 22% park, 50% plots and 0% parking.
+ * 5–8 storey mass-timber perimeter blocks. Coastal: a 12 m engineered berm
+ * backed by a ~1.5 km coastal forest belt.
+ * The 7 fire/EMS station positions below are the ACTUAL coordinates its own
+ * models/outputs/response_times.json reports from its p-median optimisation. */
+function genHearth() {
+  const g = makeGrid(180, 50);            // 9.0 km span
+  const R = 2630;
+  const WARD_SP = 590;                     // 60 wards over 17.97 km² → ~590 m hub lattice
+  const COAST_Y = 4000, BERM_Y = 3700, FOREST_Y = 2300;
+  // ward hub lattice (hex packing), keep the 60 innermost
+  const wards = [];
+  for (let row = -6; row <= 6; row++) for (let col = -6; col <= 6; col++) {
+    const wx = col * WARD_SP + (row % 2 ? WARD_SP / 2 : 0);
+    const wy = row * WARD_SP * Math.sqrt(3) / 2;
+    if (inHex(wx, wy, 0, 0, R * 0.93)) wards.push([wx, wy]);
+  }
+  wards.sort((a, b) => dist(a[0], a[1], 0, 0) - dist(b[0], b[1], 0, 0));
+  wards.length = Math.min(60, wards.length);
+  // 6 district centres (health centre + market + secondary school)
+  const districts = [];
+  for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3 + Math.PI / 6; districts.push([1450 * Math.cos(a), 1450 * Math.sin(a)]); }
+  let resCells = 0;
+  for (let y = 0; y < g.n; y++) for (let x = 0; x < g.n; x++) {
+    const [wx, wy] = g.world(x, y); const i = g.idx(x, y);
+    if (wy > COAST_Y) { g.zone[i] = Z.WATER; g.elev[i] = -5; continue; }
+    g.elev[i] = 8;
+    if (wy > BERM_Y) { g.zone[i] = Z.BARRIER; g.elev[i] = 12; g.firebreak[i] = 1; continue; }  // 12 m engineered berm (STATED)
+    if (wy > FOREST_Y) { g.zone[i] = Z.GREEN; g.firebreak[i] = 1; g.elev[i] = 8; continue; }   // ~1.5 km coastal forest belt (STATED)
+    if (!inHex(wx, wy, 0, 0, R)) { g.zone[i] = Z.AGRI; g.storeys[i] = 0; continue; }           // territory: cropland/forest
+    // civic core: acute hospital + EOC (base-isolated critical class)
+    if (dist(wx, wy, 0, 0) < 260) { g.zone[i] = Z.CIVIC; g.storeys[i] = 6; g.mat[i] = MAT.CONCRETE; g.critical[i] = 1; continue; }
+    // district centres: health centre, market, secondary school (health centre is base-isolated)
+    let atDistrict = false;
+    for (const [dx, dy] of districts) if (dist(wx, wy, dx, dy) < 150) { atDistrict = true; break; }
+    if (atDistrict) { g.zone[i] = Z.CIVIC; g.storeys[i] = 5; g.mat[i] = MAT.CONCRETE; g.critical[i] = 1; continue; }
+    // nearest ward hub
+    let wc = null, wd = 1e9, wi = 0;
+    for (let k = 0; k < wards.length; k++) { const d = dist(wx, wy, wards[k][0], wards[k][1]); if (d < wd) { wd = d; wc = wards[k]; wi = k; } }
+    if (wd < 70) { g.zone[i] = Z.CIVIC; g.storeys[i] = 3; g.mat[i] = MAT.TIMBER; continue; }   // ward hub (cache + cool refuge; NOT in the base-isolation scope)
+    // one park per ward, offset from the hub — delivers the stated 22% green
+    // and "park within 300 m" without ringing the hub
+    if (wc) {
+      const pa = wi * 2.399963;                                       // golden-angle offset so parks don't line up
+      const px = wc[0] + 205 * Math.cos(pa), py = wc[1] + 205 * Math.sin(pa);
+      if (dist(wx, wy, px, py) < 150) { g.zone[i] = Z.GREEN; g.firebreak[i] = 1; continue; }
+    }
+    // street lattice: 34 m avenues every 800 m, 22 m collectors every 400 m.
+    // (The 100 m / 12 m lane lattice is finer than this 50 m grid can draw —
+    // its containment is credited via the stated-street-width factor in sim.js.)
+    const ax = Math.abs(((wx % 800) + 800 + 400) % 800 - 400) > 375;
+    const ay = Math.abs(((wy % 800) + 800 + 400) % 800 - 400) > 375;
+    const cx = Math.abs(((wx % 400) + 400 + 200) % 400 - 200) > 180;
+    const cy = Math.abs(((wy % 400) + 400 + 200) % 400 - 200) > 180;
+    if (ax || ay || cx || cy) { g.zone[i] = Z.STREET; continue; }
+    // 5–8 storey mass-timber perimeter blocks (mean 4.5 storeys city-wide)
+    g.zone[i] = Z.RES_MED;
+    g.storeys[i] = hash2(x, y) < 0.35 ? 5 : hash2(x, y) < 0.8 ? 6 : 8;
+    g.mat[i] = MAT.TIMBER;                                            // CLT/glulam (stated) — lighter seismic mass, but combustible
+    g.pop[i] = -1; resCells++;
+  }
+  const perCell = 250000 / Math.max(1, resCells);
+  for (let i = 0; i < g.pop.length; i++) if (g.pop[i] < 0) g.pop[i] = perCell;
+  // 7 fire/EMS stations — the p-median coordinates its own model computed
+  for (const [sx, sy] of [[-800, 0], [800, -400], [0, 1600], [-200, -2000], [1600, 0], [-1800, 0], [-1800, -800]])
+    g.stations.push({ wx: sx, wy: sy, kind: 'fire' });
+  // 60 ward posts: duty first responder on an e-bike + pre-positioned cache
+  for (const [wx2, wy2] of wards) g.stations.push({ wx: wx2, wy: wy2, kind: 'micro' });
+  // acute hospital (core) + 6 district health centres
+  g.stations.push({ wx: 150, wy: -150, kind: 'hospital' });
+  for (const [dx, dy] of districts) g.stations.push({ wx: dx, wy: dy + 90, kind: 'hospital' });
+  g.coast = { dir: 'south', barrierElev: 12, surfaceElev: 8 };
+  g.coastLine = COAST_Y;
+  return g;
+}
+
 const CITY_BUILDERS = {
   'solaris': genSolaris,
   'meridian-s': genMeridianS,
   'civitas': genCivitas,
   'meridian-f': genMeridianF,
   'resilient-city': genResilientCity,
+  'hearth': genHearth,
 };
 
 /* stated on-map population per design (Solaris: 520k minus 50k rotational
  * hinterland workers who live outside the mapped 25 km city) */
-const POP_TARGET = { 'solaris': 470000, 'meridian-s': 467031, 'civitas': 250000, 'meridian-f': 1000000, 'resilient-city': 1000000 };
+const POP_TARGET = { 'solaris': 470000, 'meridian-s': 467031, 'civitas': 250000, 'meridian-f': 1000000, 'resilient-city': 1000000, 'hearth': 250000 };
 
 /* neutral geography applied identically to all four cities: land rises gently
  * inland from the coast (0.7 m/km). None of the designs maps terrain heights;

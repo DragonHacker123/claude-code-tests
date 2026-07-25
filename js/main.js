@@ -1,7 +1,7 @@
 /* main.js — app wiring: city selection, tabs, tools, sim loop, live stats. */
 (function () {
   const DATA = window.CITY_DATA;
-  const COLORS = { 'solaris': '#3987e5', 'meridian-s': '#199e70', 'civitas': '#c98500', 'meridian-f': '#9085e9', 'resilient-city': '#d55181' };
+  const COLORS = { 'solaris': '#3987e5', 'meridian-s': '#199e70', 'civitas': '#c98500', 'meridian-f': '#9085e9', 'resilient-city': '#d55181', 'hearth': '#d95926' };
 
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => [...document.querySelectorAll(s)];
@@ -22,7 +22,7 @@
       const b = document.createElement('button');
       b.className = 'citybtn';
       b.dataset.id = c.id;
-      b.innerHTML = `<span class="dot" style="background:${COLORS[c.id]}"></span>${c.name}<small>${c.figures.population.value.toLocaleString('en-US')} · ${c.repo.split('/')[0]}</small>`;
+      b.innerHTML = `<span class="dot" style="background:${COLORS[c.id]}"></span>${c.name}<small>${c.model} · ${c.figures.population.value.toLocaleString('en-US')}</small>`;
       b.onclick = () => selectCity(c.id);
       bar.appendChild(b);
     }
@@ -96,7 +96,7 @@
     $('#log').innerHTML = '';
     $('#baselines').innerHTML = '';
     const c = cityRec(id);
-    $('#cityTitle').innerHTML = `<span class="dot" style="background:${COLORS[id]}"></span> ${c.name} <small>${c.repo} · ${grid.n}×${grid.n} cells @ ${grid.cellM} m — generated from the design's stated geometry</small>`;
+    $('#cityTitle').innerHTML = `<span class="dot" style="background:${COLORS[id]}"></span> ${c.name} <small>by ${c.model} · ${c.repo} · ${grid.n}×${grid.n} cells @ ${grid.cellM} m — generated from the design's stated geometry</small>`;
   }
 
   function ensureSim() { if (!sim) sim = new window.CitySim.Sim(grid, cityRec(currentId)); }

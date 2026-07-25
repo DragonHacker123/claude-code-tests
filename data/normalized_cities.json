@@ -1,379 +1,2079 @@
 {
-  "schema_version": "1.0",
-  "generated": "2026-07-14",
-  "description": "Normalised key figures extracted from four independently-designed city blueprints (claude-code-haiku, claude-code-sonnet, claude-code-opus, claude-code-fable/worldwide-city). Every figure carries a status: 'stated' (explicitly in the source repo), 'derived' (arithmetic on stated figures, formula noted), or 'missing' (the source repo does not report it — value is null, never inferred).",
-  "comparability_warnings": [
-    "CRIME TARGETS ARE NOT DIRECTLY COMPARABLE: Solaris targets 15 total crimes/100k/yr, Meridian-S targets <150 VIOLENT crimes/100k/yr, and CIVITAS, Meridian-F and Resilient City target homicide rates (<1, <0.5 and <2 per 100k/yr respectively — Resilient City also sets violent-victimisation and burglary sub-targets). These are different metrics.",
-    "RESPONSE TIMES ARE NOT DIRECTLY COMPARABLE: definitions differ — Solaris reports simulated travel medians, Meridian-S reports travel-to-farthest-resident seconds, CIVITAS reports end-to-end (call to on-scene) including dispatch+turnout, Meridian-F reports turnout+travel. Each figure carries a 'definition' field.",
-    "DENSITY BASIS DIFFERS: Solaris's 1,965 km2 footprint includes agricultural rings inside the city boundary; the other three exclude their hinterland from the urban area. Solaris does not state a built-up-only density."
-  ],
-  "cities": [
-    {
-      "id": "solaris",
-      "name": "Solaris",
-      "repo": "claude-code-haiku",
-      "source_files": ["masterplan.md", "iteration_log.md", "README.md", "emergency_response_data.json"],
-      "layout": {
-        "type": "concentric-rings",
-        "urban_radius_km": 25,
-        "rings": [
-          {"name": "Ring 0 Core", "r0_km": 0, "r1_km": 2, "use": "civic", "storeys": null, "pop": 20000},
-          {"name": "Ring 1 Residential-Dense", "r0_km": 2, "r1_km": 7, "use": "residential-dense", "storeys": [25, 35], "pop": 150000},
-          {"name": "Ring 2 Residential-Medium", "r0_km": 7, "r1_km": 12, "use": "residential-medium", "storeys": [8, 15], "pop": 150000},
-          {"name": "Ring 3 Industrial+Energy", "r0_km": 12, "r1_km": 16, "use": "industrial", "storeys": null, "pop": 50000},
-          {"name": "Ring 4 Agricultural+Buffer", "r0_km": 16, "r1_km": 25, "use": "agriculture", "storeys": null, "pop": 100000}
-        ],
-        "note": "Ring 0 population not stated; 20k is the residual of 520k total minus stated ring populations (450k) minus 50k hinterland workers. Hinterland (25-150 km) excluded from simulation.",
-        "radials": 16
-      },
-      "figures": {
-        "population": {"value": 520000, "unit": "people", "status": "stated", "source": "masterplan.md header"},
-        "urban_area_km2": {"value": 1965, "unit": "km2", "status": "stated", "source": "masterplan.md header", "note": "includes agricultural Rings 3-4 inside the 25 km radius"},
-        "gross_density_per_km2": {"value": 265, "unit": "people/km2", "status": "derived", "source": "520,000 / 1,965 km2", "note": "whole-footprint average incl. farm rings; built-up-only density NOT stated in repo"},
-        "built_up_density_per_km2": {"value": null, "status": "missing", "note": "masterplan gives ring populations and radii but never a built-up density figure"},
-        "hinterland_km2": {"value": 68700, "unit": "km2", "status": "derived", "source": "25-150 km annulus stated as extractive hinterland; area = pi*(150^2-25^2)", "note": "repo states '1.2M hectares' (12,000 km2) for resource extraction within it"},
-        "building_storeys_typical": {"value": "8-35 by ring", "status": "stated", "source": "masterplan §1.1"},
-        "building_materials": {"value": "CLT or reinforced concrete (ductile detailing)", "status": "stated", "source": "masterplan §2.1"},
-        "street_width_m": {"value": null, "status": "missing", "note": "'strict building separation distances' asserted in §10.1 but no number anywhere"},
-        "building_spacing": {"value": null, "status": "missing", "note": "no spacing, setback, or block-grid dimension stated — fire-spread modelling for Solaris is low-confidence"},
-        "gas_grid": {"value": null, "status": "missing", "note": "post-quake fire ignition source unaddressed (Meridian-F explicitly bans gas; Solaris silent)"},
-        "green_cover_pct": {"value": 35, "unit": "%", "status": "stated", "source": "masterplan §1.3"},
-        "firebreaks": {"value": "pocket parks every 200 m; radial canal corridors", "status": "stated", "source": "masterplan §1.3", "note": "not designed as firebreaks; canal corridors are stormwater+recreation"},
-        "seismic_design_basis": {"value": "9.0 Mw", "status": "stated", "source": "masterplan §2.1"},
-        "base_isolation_scope": {"value": "all buildings >=8 storeys", "status": "stated", "source": "masterplan §2.1", "note": "broadest isolation scope of the four designs"},
-        "drift_capacity_m": {"value": 1.5, "unit": "m lateral", "status": "stated", "source": "masterplan §2.1"},
-        "soft_storey_ban": {"value": null, "status": "missing", "note": "not addressed (waterfront buildings deliberately have open lower storeys for tsunami)"},
-        "quake_survival_target_pct": {"value": 99.5, "unit": "% at 9.0 Mw", "status": "stated", "source": "masterplan §12"},
-        "tsunami_design_height_m": {"value": 15, "unit": "m", "status": "stated", "source": "masterplan §2.2"},
-        "flood_defence_layers": {"value": "5 m artificial dunes + mangroves + breakwaters; open lower 3 storeys within 2 km of coast; roof evacuation; 2-min sensor warning", "status": "stated", "source": "masterplan §2.2"},
-        "site_elevation_model": {"value": null, "status": "missing", "note": "no ground elevations, drainage capacities, or inundation map — flood simulation is low-confidence and defence-layer-based only"},
-        "stormwater_drainage": {"value": "radial canal corridors", "status": "stated", "source": "masterplan §1.3", "note": "no capacity figures"},
-        "wind_design": {"value": "Category 5 / 250 km/h sustained", "status": "stated", "source": "masterplan §2.3"},
-        "fire_stations": {"value": 17, "status": "stated", "source": "masterplan §4.1", "note": "16 in habitable city + 1 hinterland"},
-        "fire_response_median_min": {"value": 4.2, "unit": "min", "status": "stated", "source": "masterplan §4.1", "definition": "simulated median, habitable city, K-medians station placement + 1,000 random incidents"},
-        "fire_response_p95_min": {"value": 5.2, "unit": "min", "status": "stated", "source": "masterplan §4.1", "definition": "95th percentile, habitable city"},
-        "ems_response_median_min": {"value": 5.1, "unit": "min", "status": "stated", "source": "masterplan §4.2"},
-        "ems_ambulances": {"value": 40, "status": "stated", "source": "masterplan §4.2"},
-        "police_response_target_min": {"value": 8, "unit": "min", "status": "stated", "source": "masterplan §7.4", "definition": "target, not simulated"},
-        "police_stations": {"value": 12, "status": "stated", "source": "masterplan §4.3"},
-        "hospitals": {"value": "1 Level-1 trauma (1,200 beds) + 6 district (300 beds) + 25 urgent-care", "status": "stated", "source": "masterplan §4.2"},
-        "response_degraded_scenario": {"value": null, "status": "missing", "note": "no post-earthquake / station-loss response analysis (contrast: Meridian-F and Meridian-S both model it)"},
-        "crime_target": {"value": 15, "unit": "crimes per 100k/yr", "metric": "total crime", "status": "stated", "source": "masterplan §5.1", "note": "NOT comparable to others: 15 TOTAL crimes/100k is far below any real city (Tokyo cited in-repo at 25/100k); treat as the design's own claim"},
-        "prison_target": {"value": 50, "unit": "prisoners per 100k", "status": "stated", "source": "masterplan §7.4"},
-        "economic_model": {"value": "Hybrid cooperative capitalism", "status": "stated", "source": "masterplan §6", "mechanisms": ["worker ownership mandatory >250 employees", "municipal utilities", "universal basic services", "job guarantee at $22/h min wage", "executive pay cap 15x median", "progressive income tax 20/35%", "land value tax 2%", "carbon tax $50/t"]},
-        "gini_target": {"value": 0.28, "status": "stated", "source": "masterplan §5.3"},
-        "energy_demand_avg_mw": {"value": 1200, "unit": "MW", "status": "stated", "source": "masterplan §3.1"},
-        "energy_demand_peak_mw": {"value": null, "status": "missing"},
-        "energy_mix": {"value": {"solar": 40, "wind": 35, "geothermal": 15, "hydro": 10}, "unit": "% annual", "status": "stated", "source": "masterplan §3.1"},
-        "battery_storage_gwh": {"value": 10, "unit": "GWh", "status": "stated", "source": "masterplan §3.1"},
-        "energy_autonomy_days": {"value": 21, "unit": "days", "status": "stated", "source": "masterplan §3.1"},
-        "water_demand": {"value": 2500000, "unit": "m3/day", "status": "stated", "source": "masterplan §3.3", "note": "city + agriculture"},
-        "water_sources": {"value": {"rainfall": 60, "desalination": 25, "recycling": 15}, "unit": "%", "status": "stated", "source": "masterplan §3.3"},
-        "water_reserve_days": {"value": 180, "unit": "days", "status": "stated", "source": "masterplan §12"},
-        "food_self_sufficiency": {"value": "100% vegetables+protein, 60% grains target stated in §3.2 header, but §3.2 also claims 2.25 Mt/yr grain surplus; iteration 8 found 50% of meat must be imported", "status": "stated", "source": "masterplan §3.2 + README iteration 8", "note": "internally inconsistent between sections; recorded as stated"},
-        "food_reserve_months": {"value": 6, "unit": "months (extendable to 12)", "status": "stated", "source": "masterplan §3.2"},
-        "housing_floor_m2_per_person": {"value": 30, "unit": "m2", "status": "stated", "source": "masterplan §7.2"},
-        "noise_limit_db": {"value": null, "status": "missing", "note": "'strict noise codes' asserted, no numbers"},
-        "commute_target": {"value": "median 25 min edge-to-centre transit", "status": "stated", "source": "masterplan §1.2"},
-        "local_reserve_hours": {"value": null, "status": "missing", "note": "no per-neighbourhood 72h reserve concept; city-level reserves only"}
-      },
-      "sim_capabilities": {
-        "fire": {"supported": true, "confidence": "low", "notes": "Materials (CLT/RC) and response times are stated, but building spacing, street widths and block dimensions are NOT — spread geometry uses ring density only. Treat spread extent as indicative."},
-        "flood": {"supported": true, "confidence": "low", "notes": "Tsunami defence layers (5 m dunes, 15 m design wave) are stated, but no site elevations or drainage capacities exist. Simulation models defence-layer overtopping only, not terrain."},
-        "quake": {"supported": true, "confidence": "medium", "notes": "Design basis (9.0 Mw), isolation scope (>=8 storeys) and 99.5% survival target stated. No post-quake station-loss analysis in source; degradation modelled generically."},
-        "population": {"supported": true, "confidence": "medium", "notes": "UBS, job guarantee, mental-health ratios stated; baseline needs derivable."}
-      }
+ "schema_version": "1.0",
+ "generated": "2026-07-25",
+ "description": "Normalised key figures extracted from six independently-designed city blueprints (claude-code-haiku, claude-code-sonnet, claude-code-opus-4.8, claude-code-fable/worldwide-city, chat-gpt-code/resilient-city and claude-code-opus). Every figure carries a status: 'stated' (explicitly in the source repo), 'derived' (arithmetic on stated figures, formula noted), or 'missing' (the source repo does not report it — value is null, never inferred).",
+ "model_label_note": "The 'model' field records which model authored each design. Only the two Opus repos carry an explicit version in their repo name (claude-code-opus-4.8 and claude-code-opus, the latter being Opus 5's). The Haiku, Sonnet and Fable repos do not record a minor version anywhere in their contents, so those labels are deliberately unversioned rather than guessed.",
+ "repo_rename_note": "CIVITAS's source repo was renamed from 'claude-code-opus' to 'claude-code-opus-4.8' when Opus 5's HEARTH took over the 'claude-code-opus' name. The repo field below reflects the CURRENT names.",
+ "comparability_warnings": [
+  "CRIME TARGETS ARE NOT DIRECTLY COMPARABLE: Solaris targets 15 total crimes/100k/yr, Meridian-S targets <150 VIOLENT crimes/100k/yr, and CIVITAS, Meridian-F, Resilient City and HEARTH target homicide rates (<1, <0.5, <2 and <0.5 per 100k/yr respectively — Resilient City and HEARTH add separate overall-offence sub-targets). These are different metrics.",
+  "RESPONSE TIMES ARE NOT DIRECTLY COMPARABLE: definitions differ — Solaris reports simulated travel medians, Meridian-S reports travel-to-farthest-resident seconds, CIVITAS and Resilient City report end-to-end (call to on-scene) including dispatch+turnout, Meridian-F reports turnout+travel, and HEARTH reports travel and total separately at p50/p90/p99. Each figure carries a 'definition' field.",
+  "DENSITY BASIS DIFFERS: Solaris's 1,965 km2 footprint includes agricultural rings inside the city boundary; the others exclude their hinterland from the urban area. Solaris does not state a built-up-only density.",
+  "SEISMIC DESIGN BASES ARE EXPRESSED IN DIFFERENT UNITS: Solaris and Meridian-F give a MAGNITUDE (9.0 Mw, M8+/M7), HEARTH gives a RETURN PERIOD (2,475-year), and Meridian-S, CIVITAS and Resilient City give a PERFORMANCE FRAMEWORK (MCE / Immediate Occupancy) with no number at all. The simulator can only score damage against a magnitude, so the latter four fall back to a flagged generic M8.0.",
+  "MODEL VERSIONS ARE ONLY PARTLY KNOWN: the two Opus repos state their version (4.8 and 5); the Haiku, Sonnet and Fable repos record no minor version anywhere, so those labels are unversioned rather than guessed."
+ ],
+ "cities": [
+  {
+   "id": "solaris",
+   "name": "Solaris",
+   "model": "Claude Haiku",
+   "repo": "claude-code-haiku",
+   "source_files": [
+    "masterplan.md",
+    "iteration_log.md",
+    "README.md",
+    "emergency_response_data.json"
+   ],
+   "layout": {
+    "type": "concentric-rings",
+    "urban_radius_km": 25,
+    "rings": [
+     {
+      "name": "Ring 0 Core",
+      "r0_km": 0,
+      "r1_km": 2,
+      "use": "civic",
+      "storeys": null,
+      "pop": 20000
+     },
+     {
+      "name": "Ring 1 Residential-Dense",
+      "r0_km": 2,
+      "r1_km": 7,
+      "use": "residential-dense",
+      "storeys": [
+       25,
+       35
+      ],
+      "pop": 150000
+     },
+     {
+      "name": "Ring 2 Residential-Medium",
+      "r0_km": 7,
+      "r1_km": 12,
+      "use": "residential-medium",
+      "storeys": [
+       8,
+       15
+      ],
+      "pop": 150000
+     },
+     {
+      "name": "Ring 3 Industrial+Energy",
+      "r0_km": 12,
+      "r1_km": 16,
+      "use": "industrial",
+      "storeys": null,
+      "pop": 50000
+     },
+     {
+      "name": "Ring 4 Agricultural+Buffer",
+      "r0_km": 16,
+      "r1_km": 25,
+      "use": "agriculture",
+      "storeys": null,
+      "pop": 100000
+     }
+    ],
+    "note": "Ring 0 population not stated; 20k is the residual of 520k total minus stated ring populations (450k) minus 50k hinterland workers. Hinterland (25-150 km) excluded from simulation.",
+    "radials": 16
+   },
+   "figures": {
+    "population": {
+     "value": 520000,
+     "unit": "people",
+     "status": "stated",
+     "source": "masterplan.md header"
     },
-    {
-      "id": "meridian-s",
-      "name": "Meridian (Sonnet)",
-      "repo": "claude-code-sonnet",
-      "source_files": ["masterplan.md", "iteration_log.md", "scripts/city_geometry.py", "scripts/emergency_response.py", "scripts/resource_budget.py"],
-      "layout": {
-        "type": "fractal-hex",
-        "built_up_radius_km": 4.15,
-        "cell_apothem_m": 400,
-        "cells_per_district": 7,
-        "districts": 6,
-        "civic_core": true,
-        "inter_district_buffer_m": 180,
-        "note": "city = civic core + 6 districts; district = hub cell + 6 cells; ~43 hexes total"
-      },
-      "figures": {
-        "population": {"value": 467031, "unit": "people", "status": "stated", "source": "masterplan §3 (computed by scripts/city_geometry.py)"},
-        "urban_area_km2": {"value": 54.0, "unit": "km2", "status": "stated", "source": "masterplan §1"},
-        "gross_density_per_km2": {"value": 8650, "unit": "people/km2", "status": "stated", "source": "masterplan §4", "note": "city-wide average incl. buffers"},
-        "built_up_density_per_km2": {"value": 22000, "unit": "people/km2", "status": "stated", "source": "masterplan §4", "note": "cell-level gross residential density"},
-        "hinterland_km2": {"value": 388, "unit": "km2 farmland (7.2x city) + 17.8 km2 aquaculture bay", "status": "stated", "source": "masterplan §3"},
-        "building_storeys_typical": {"value": "6-10 (housing); 25-30 landmark towers at district hubs only", "status": "stated", "source": "masterplan §4"},
-        "building_materials": {"value": "ductile reinforced concrete or mass timber moment frames with shear walls", "status": "stated", "source": "masterplan §2.1"},
-        "street_width_m": {"value": null, "status": "missing", "note": "cell geometry and 180 m inter-district buffers stated; street cross-sections not"},
-        "building_spacing": {"value": "180 m green buffers between districts (double as firebreaks); shared green edge around each cell", "status": "stated", "source": "scripts/city_geometry.py, masterplan §1"},
-        "gas_grid": {"value": null, "status": "missing"},
-        "green_cover_pct": {"value": null, "status": "missing", "note": ">=12 m2 green within 5-min walk stated as QoL floor, but no city-wide % figure"},
-        "firebreaks": {"value": "inter-district green corridors explicitly noted as firebreaks", "status": "stated", "source": "scripts/city_geometry.py comments"},
-        "seismic_design_basis": {"value": "M9-class subduction (coastal Pacific-Rim worst case)", "status": "stated", "source": "masterplan §2"},
-        "base_isolation_scope": {"value": "critical/hub buildings only (hospitals, schools, fire/EMS stations, civic core)", "status": "stated", "source": "masterplan §2.1"},
-        "drift_capacity_m": {"value": null, "status": "missing"},
-        "soft_storey_ban": {"value": true, "status": "stated", "source": "masterplan §2.1"},
-        "quake_survival_target_pct": {"value": null, "status": "missing", "note": "no quantified survival target; qualitative performance goals only"},
-        "tsunami_design_height_m": {"value": null, "status": "missing", "note": "refuge storeys 'above the design tsunami height' and high-ground network at +15-20 m stated, but the design wave height itself is never given"},
-        "flood_defence_layers": {"value": "dune+mangrove buffer; seawall with retractable surge gate; elevated ring road berm; refuge storey per building; critical services on +15-20 m podium network", "status": "stated", "source": "masterplan §2.2"},
-        "site_elevation_model": {"value": "partial — critical podium network at +15-20 m stated; no terrain map", "status": "stated", "source": "masterplan §2.2"},
-        "stormwater_drainage": {"value": null, "status": "missing", "note": "buffers include 'drainage swales' (geometry script) but no capacities"},
-        "wind_design": {"value": "Category 5-equivalent; Miami-Dade continuous load path; TMD/TLD on landmark towers", "status": "stated", "source": "masterplan §2.3"},
-        "fire_stations": {"value": "6 district main fire/EMS stations + ~43 cell-hub micro-posts (paramedic e-bike + AED drone)", "status": "derived", "source": "geometry: 1 main station per district hub, micro-post at every cell hub", "note": "exact station count not printed as a single number in repo"},
-        "fire_response_median_min": {"value": 2.0, "unit": "min", "status": "stated", "source": "masterplan §5 (121 s)", "definition": "median travel to residents WITH cell micro-posts, uncongested graph model; district-hub-only average-to-farthest is 238 s"},
-        "fire_response_p95_min": {"value": null, "status": "missing", "note": "model reports median and zero-points-over-300s, not a p95"},
-        "ems_response_median_min": {"value": 2.0, "unit": "min", "status": "stated", "source": "masterplan §5 (121 s, same integrated posts)"},
-        "ems_ambulances": {"value": null, "status": "missing"},
-        "police_response_target_min": {"value": null, "status": "missing", "note": "policing legitimacy/accountability specified; response times and station counts are not"},
-        "police_stations": {"value": null, "status": "missing"},
-        "hospitals": {"value": "1 per district hub (6) + none solely in civic core (deliberate)", "status": "stated", "source": "masterplan §1"},
-        "response_degraded_scenario": {"value": "double failure (district hub + civic core down): 454 s mean mutual aid — stated as accepted limitation; 72 h cell reserves are the fallback", "status": "stated", "source": "masterplan §5"},
-        "crime_target": {"value": 150, "unit": "violent crimes per 100k/yr", "metric": "violent crime", "status": "stated", "source": "masterplan §6"},
-        "prison_target": {"value": null, "status": "missing", "note": "restorative-first track stated; no incarceration-rate number"},
-        "economic_model": {"value": "Commons/market hybrid (3 tiers)", "status": "stated", "source": "masterplan §7", "mechanisms": ["decommodified commons tier (housing/health/education/water/transit)", "land value tax, no tax on labour below living-cost threshold", "regulated market with sector antitrust caps", "job guarantee", "local demurrage currency"]},
-        "gini_target": {"value": null, "status": "missing"},
-        "energy_demand_avg_mw": {"value": null, "status": "missing", "note": "peak stated, average not"},
-        "energy_demand_peak_mw": {"value": 685, "unit": "MW design peak", "status": "stated", "source": "masterplan §3"},
-        "energy_mix": {"value": {"offshore_wind": 55, "solar": 30, "tidal_wave_biogas": 15}, "unit": "% supply", "status": "stated", "source": "masterplan §3"},
-        "battery_storage_gwh": {"value": 3.4, "unit": "GWh (~8 h average load)", "status": "stated", "source": "masterplan §3"},
-        "energy_autonomy_days": {"value": 0.33, "unit": "days (8 h battery)", "status": "derived", "source": "3.4 GWh / average load", "note": "no multi-day autonomy claim made"},
-        "water_demand": {"value": 130800, "unit": "m3/day", "status": "stated", "source": "masterplan §3 (130.8 ML/day)"},
-        "water_sources": {"value": {"rainfall": 59, "recycling": 40, "desalination": 1}, "unit": "%", "status": "stated", "source": "masterplan §3"},
-        "water_reserve_days": {"value": null, "status": "missing", "note": "72 h cell-hub reserves stated for emergencies; no city-level reserve-days figure"},
-        "food_self_sufficiency": {"value": "life-critical necessities only, explicitly scoped; staples from 388 km2 hinterland at realistic yields; vertical farms greens-only (88.8 ha)", "status": "stated", "source": "masterplan §3"},
-        "food_reserve_months": {"value": 0.1, "unit": "months (72 h per cell hub)", "status": "stated", "source": "masterplan §5, §8", "note": "no long-term strategic food reserve stated — only 72 h local stocks"},
-        "housing_floor_m2_per_person": {"value": 35, "unit": "m2", "status": "stated", "source": "masterplan §4"},
-        "noise_limit_db": {"value": "<=55 dB facades / <=45 dB courtyards", "status": "stated", "source": "masterplan §4"},
-        "commute_target": {"value": ">=90% within 15-minute walk/bike/transit of daily needs", "status": "stated", "source": "masterplan §4"},
-        "local_reserve_hours": {"value": 72, "unit": "hours (water/food/first-aid per cell hub)", "status": "stated", "source": "masterplan §5, §8"}
-      },
-      "sim_capabilities": {
-        "fire": {"supported": true, "confidence": "medium", "notes": "Materials, firebreak buffers (180 m) and micro-post response model stated; street widths within cells missing, so intra-cell spread is approximated from density."},
-        "flood": {"supported": true, "confidence": "medium", "notes": "Defence layers and the +15-20 m critical podium are stated, but the design tsunami height itself is missing — overtopping threshold is therefore user-set, flagged in UI."},
-        "quake": {"supported": true, "confidence": "high", "notes": "The repo itself models the degraded double-failure case (454 s mutual aid); isolation scope and soft-storey ban stated."},
-        "population": {"supported": true, "confidence": "high", "notes": "QoL floors are quantified (35 m2, noise, green access, 15-min city) — good basis for agent needs."}
-      }
+    "urban_area_km2": {
+     "value": 1965,
+     "unit": "km2",
+     "status": "stated",
+     "source": "masterplan.md header",
+     "note": "includes agricultural Rings 3-4 inside the 25 km radius"
     },
-    {
-      "id": "civitas",
-      "name": "CIVITAS",
-      "repo": "claude-code-opus",
-      "source_files": ["masterplan.md", "iteration_log.md", "sim/emergency_response.py", "sim/self_sufficiency.py"],
-      "layout": {
-        "type": "single-hex",
-        "hex_circumradius_m": 2630,
-        "districts": 6,
-        "civic_core_radius_m": 460,
-        "note": "flat-top hexagon, six wedge districts around a central civic core; ~35-40k residents per district"
-      },
-      "figures": {
-        "population": {"value": 250000, "unit": "people", "status": "stated", "source": "masterplan header"},
-        "urban_area_km2": {"value": 18.0, "unit": "km2", "status": "stated", "source": "masterplan §1.1"},
-        "gross_density_per_km2": {"value": 13900, "unit": "people/km2", "status": "stated", "source": "masterplan §1.3"},
-        "built_up_density_per_km2": {"value": 13900, "unit": "people/km2", "status": "stated", "source": "same figure — the 18 km2 core is all built-up", "note": "Barcelona Eixample cited at ~35,000/km2 net as the typology ceiling"},
-        "hinterland_km2": {"value": 244, "unit": "km2 (217 farm + 27 energy; total region 262 km2, ~9 km radius)", "status": "stated", "source": "masterplan §3"},
-        "building_storeys_typical": {"value": "5-8 perimeter blocks; landmark tower + vertical farms taller", "status": "stated", "source": "masterplan §1.3"},
-        "building_materials": {"value": "RC/steel ductile frames; CLT mid-rise where forestry supplies; rammed earth/CSEB; geopolymer cement", "status": "stated", "source": "masterplan §2.1, §3.4"},
-        "street_width_m": {"value": null, "status": "missing", "note": "block typology described; street cross-sections not dimensioned"},
-        "building_spacing": {"value": null, "status": "missing", "note": "perimeter-block courtyards implied; no block-grid dimension given"},
-        "gas_grid": {"value": null, "status": "missing", "note": "buried utilities stated for wind; gas not addressed"},
-        "green_cover_pct": {"value": 30, "unit": "% tree canopy minimum", "status": "stated", "source": "masterplan §4"},
-        "firebreaks": {"value": "farm belt is 'polyculture mosaic with firebreaks' (hinterland); urban firebreaks not specified", "status": "stated", "source": "masterplan §3.1"},
-        "seismic_design_basis": {"value": "MCE — Life Safety for residential, Immediate Occupancy for lifelines", "status": "stated", "source": "masterplan §2", "note": "framework stated; no magnitude number (region-tuned by design)"},
-        "base_isolation_scope": {"value": "hospital, 7 emergency hubs, civic tower, evacuation towers", "status": "stated", "source": "masterplan §2.1"},
-        "drift_capacity_m": {"value": null, "status": "missing"},
-        "soft_storey_ban": {"value": null, "status": "missing", "note": "strong-column/weak-beam stated; explicit soft-storey prohibition not stated (seaward pilotis blocks are deliberately open-ground)"},
-        "quake_survival_target_pct": {"value": null, "status": "missing"},
-        "tsunami_design_height_m": {"value": null, "status": "missing", "note": "layered defence + FEMA P-646 refuges stated; design wave height region-tuned, never numbered"},
-        "flood_defence_layers": {"value": "forested berm + mangroves/dunes; core on raised terp; sacrificial flow-through pilotis on seaward blocks; vertical refuges within 5-min walk", "status": "stated", "source": "masterplan §2.2"},
-        "site_elevation_model": {"value": "partial — 'urban core sits on raised ground (engineered terp)'; no heights given", "status": "stated", "source": "masterplan §2.2"},
-        "stormwater_drainage": {"value": "looped utilidor network with sectionalising valves (water); stormwater not separately specified", "status": "stated", "source": "masterplan §2.4"},
-        "wind_design": {"value": "typhoon/hurricane package: aerodynamic massing, continuous load path (Miami-Dade), impact glazing, buried utilities", "status": "stated", "source": "masterplan §2.3", "note": "no design wind speed number"},
-        "fire_stations": {"value": 7, "status": "stated", "source": "masterplan §5", "note": "integrated fire+EMS+police hubs: 1 civic core + 1 per district; plus AEDs within 200 m and drone defibrillators"},
-        "fire_response_median_min": {"value": 3.71, "unit": "min", "status": "stated", "source": "masterplan §5", "definition": "END-TO-END call-to-on-scene (75 s dispatch + 70 s turnout + travel at 45 km/h, 1.35x detour, 200k Monte-Carlo incidents)"},
-        "fire_response_p95_min": {"value": 4.32, "unit": "min", "status": "stated", "source": "masterplan §5", "definition": "end-to-end p95; p90 4.22; worst case 4.83; travel-only p90 108 s vs NFPA 240 s"},
-        "ems_response_median_min": {"value": 3.71, "unit": "min", "status": "stated", "source": "masterplan §5 — same integrated hubs", "definition": "end-to-end"},
-        "ems_ambulances": {"value": null, "status": "missing", "note": "hubs co-locate EMS; vehicle counts not given"},
-        "police_response_target_min": {"value": 3.71, "unit": "min (same hubs)", "status": "derived", "source": "police response pods co-located in the 7 hubs", "definition": "end-to-end median, shared infrastructure"},
-        "police_stations": {"value": 7, "status": "derived", "source": "police pods in each integrated hub"},
-        "hospitals": {"value": "1 Level-1 trauma (civic core) + district clinics", "status": "stated", "source": "masterplan §1.4"},
-        "response_degraded_scenario": {"value": null, "status": "missing", "note": "islandable microgrids and looped utilidors stated for lifelines, but no station-loss response-time analysis"},
-        "crime_target": {"value": 1, "unit": "homicides per 100k/yr", "metric": "homicide", "status": "stated", "source": "masterplan §6", "note": "'below ~1/100k' + overall crime at low end of OECD (qualitative)"},
-        "prison_target": {"value": null, "status": "missing", "note": "incarceration 'last resort'; no rate target"},
-        "economic_model": {"value": "Stakeholder market on a universal foundation", "status": "stated", "source": "masterplan §7", "mechanisms": ["all land publicly owned, leaseholds", "land value tax primary", "Universal Basic Services", "job guarantee", "worker co-ops get preferential leaseholds", "public natural monopolies"]},
-        "gini_target": {"value": null, "status": "missing", "note": "'compresses inequality by construction' — no number"},
-        "energy_demand_avg_mw": {"value": 266, "unit": "MW", "status": "stated", "source": "masterplan §3"},
-        "energy_demand_peak_mw": {"value": 532, "unit": "MW", "status": "stated", "source": "masterplan §3"},
-        "energy_mix": {"value": "solar PV + wind (dual-use farmland) + geothermal/biogas firm; 1.7x overbuild for seasonal storage via green H2", "status": "stated", "source": "masterplan §3.2", "note": "no percentage split stated — region-tuned"},
-        "battery_storage_gwh": {"value": null, "status": "missing", "note": "batteries + pumped hydro + H2 + biogas named; capacities not"},
-        "energy_autonomy_days": {"value": null, "status": "missing"},
-        "water_demand": {"value": 33700, "unit": "m3/day", "status": "derived", "source": "12.3 Mm3/yr / 365 (135 L/person/day stated)", "note": "85% closed-loop reuse; fresh make-up only 1.85 Mm3/yr"},
-        "water_sources": {"value": {"recycling": 85, "rain_and_aquifer": 15}, "unit": "% approx", "status": "derived", "source": "85% reclaimed stated; make-up from 5.8 km2 rain catchment"},
-        "water_reserve_days": {"value": null, "status": "missing"},
-        "food_self_sufficiency": {"value": "full calories from 217 km2 regenerative farmland (2,500 kcal +30% loss); CEA for perishables only (479 GWh/yr)", "status": "stated", "source": "masterplan §3.1"},
-        "food_reserve_months": {"value": null, "status": "missing", "note": "'strategic stockpiles' named for high-tech inputs; food reserve duration not stated"},
-        "housing_floor_m2_per_person": {"value": 28, "unit": "m2", "status": "stated", "source": "masterplan §4"},
-        "noise_limit_db": {"value": "<=55 dB day outdoors / <=30 dB indoors night", "status": "stated", "source": "masterplan §4"},
-        "commute_target": {"value": "15-minute walk for daily life; any cross-city trip <=15 min", "status": "stated", "source": "masterplan §4"},
-        "local_reserve_hours": {"value": null, "status": "missing", "note": "islandable district microgrids stated for power; water/food local reserve duration not stated"}
-      },
-      "sim_capabilities": {
-        "fire": {"supported": true, "confidence": "medium", "notes": "Materials and full end-to-end response distribution stated; street widths and block spacing missing — spread uses density + canopy only."},
-        "flood": {"supported": true, "confidence": "low", "notes": "Defence layering is described but has NO numbers (no terp height, no design wave). Simulation is qualitative-tiered; UI flags this."},
-        "quake": {"supported": true, "confidence": "medium", "notes": "Isolation scope and performance framework stated, but no magnitude basis or survival target — damage curves are generic MCE assumptions, flagged."},
-        "population": {"supported": true, "confidence": "high", "notes": "QoL standards quantified; UBS/job guarantee stated."}
-      }
+    "gross_density_per_km2": {
+     "value": 265,
+     "unit": "people/km2",
+     "status": "derived",
+     "source": "520,000 / 1,965 km2",
+     "note": "whole-footprint average incl. farm rings; built-up-only density NOT stated in repo"
     },
-    {
-      "id": "meridian-f",
-      "name": "Meridian (Fable)",
-      "repo": "claude-code-fable/worldwide-city",
-      "source_files": ["masterplan.md", "iteration_log.md", "response_model.py", "README.md"],
-      "layout": {
-        "type": "hex-flower",
-        "districts": 7,
-        "district_flat_to_flat_km": 3.0,
-        "district_area_km2": 7.8,
-        "district_pop": 143000,
-        "block_grid_m": 130,
-        "street_width_m": 20,
-        "green_wedges": 6,
-        "note": "one core + six petal districts, tangent; six green wedges between petals"
-      },
-      "figures": {
-        "population": {"value": 1000000, "unit": "people", "status": "stated", "source": "masterplan §1"},
-        "urban_area_km2": {"value": 54.5, "unit": "km2", "status": "stated", "source": "masterplan §1"},
-        "gross_density_per_km2": {"value": 18300, "unit": "people/km2", "status": "stated", "source": "masterplan §1"},
-        "built_up_density_per_km2": {"value": 30000, "unit": "people/km2 net residential (typology figure)", "status": "stated", "source": "masterplan §1 ('the only form that has repeatedly delivered >30,000/km2 net')"},
-        "hinterland_km2": {"value": 1250, "unit": "km2 (~20 km radius)", "status": "stated", "source": "masterplan §1, §3"},
-        "building_storeys_typical": {"value": "6-8 perimeter blocks; 12-20 storey clusters within 400 m of district hubs", "status": "stated", "source": "masterplan §1"},
-        "building_materials": {"value": "engineered mass timber (CLT) or reinforced concrete, strong-column/weak-beam", "status": "stated", "source": "masterplan §2"},
-        "street_width_m": {"value": 20, "unit": "m", "status": "stated", "source": "masterplan §1"},
-        "building_spacing": {"value": "~130 m perimeter-block grid, 20 m streets", "status": "stated", "source": "masterplan §1", "note": "best-specified spread geometry of the four designs"},
-        "gas_grid": {"value": "none — all-electric city, gas omitted to remove post-quake ignition (Kobe lesson)", "status": "stated", "source": "masterplan §2"},
-        "green_cover_pct": {"value": 30, "unit": "% canopy per neighbourhood (3-30-300 rule)", "status": "stated", "source": "masterplan §5"},
-        "firebreaks": {"value": "six green wedges explicitly double as firebreaks, floodways, staging areas", "status": "stated", "source": "masterplan §1"},
-        "seismic_design_basis": {"value": "site MCE, e.g. M8+ subduction or M7 crustal; microzonation <=200 m mandatory before construction", "status": "stated", "source": "masterplan §2"},
-        "base_isolation_scope": {"value": "hospitals, all 33 micro-stations, water/energy control nodes, district civic halls", "status": "stated", "source": "masterplan §2"},
-        "drift_capacity_m": {"value": null, "status": "missing"},
-        "soft_storey_ban": {"value": true, "status": "stated", "source": "masterplan §2 ('banned outright')"},
-        "quake_survival_target_pct": {"value": null, "status": "missing", "note": "no % survival target; instead a functional target — lattice still serves city with 25% of stations destroyed (computed)"},
-        "tsunami_design_height_m": {"value": 15, "unit": "m (berm at +15 m; habitable floors above +15 m; 1-in-1000-yr design basis)", "status": "stated", "source": "masterplan §2 coastal module"},
-        "flood_defence_layers": {"value": "living shoreline; +15 m landscape berm; sacrificial 400 m waterfront band (no ground-floor housing); vertical evacuation within 10-min walk; wedges as floodways", "status": "stated", "source": "masterplan §2"},
-        "site_elevation_model": {"value": "partial — berm +15 m, habitable floors +15 m, wedges as stormwater basins/floodways; no full terrain map", "status": "stated", "source": "masterplan §1, §2"},
-        "stormwater_drainage": {"value": "stormwater basins in green wedges; rooftop catchment mandated (L19)", "status": "stated", "source": "masterplan §1, §7"},
-        "wind_design": {"value": "250 km/h 3-s gust (Saffir-Simpson 5); Miami-Dade envelope; underground grid; TMD on tall buildings", "status": "stated", "source": "masterplan §2 cyclonic module"},
-        "fire_stations": {"value": 33, "status": "stated", "source": "masterplan §4", "note": "micro-stations on ~1.4 km triangular lattice; cross-trained fire/EMS/community-police crews of 6-8; base-isolated, solar+battery islanded"},
-        "fire_response_median_min": {"value": 2.4, "unit": "min", "status": "stated", "source": "masterplan §4 table", "definition": "turnout (75 s) + travel at 36 km/h, BFS on 100 m street grid; mean 2.3"},
-        "fire_response_p95_min": {"value": 2.8, "unit": "min (p90; max 3.9)", "status": "stated", "source": "masterplan §4 table", "definition": "p90 reported, not p95"},
-        "ems_response_median_min": {"value": 2.4, "unit": "min", "status": "stated", "source": "same 33 integrated stations; hospital transport median 3.2 min (4 hospitals)"},
-        "ems_ambulances": {"value": 33, "status": "stated", "source": "masterplan §4 — one ambulance per micro-station"},
-        "police_response_target_min": {"value": 2.4, "unit": "min (community police in same stations)", "status": "derived", "source": "cross-trained crews include community policing; armed tier per district"},
-        "police_stations": {"value": 33, "status": "derived", "source": "kōban-model officers embedded in the 33 micro-stations"},
-        "hospitals": {"value": "4 (core + 3 alternating petals); p99 transport <=10 min; N+1 paired capacity", "status": "stated", "source": "masterplan §4"},
-        "response_degraded_scenario": {"value": "25% of stations destroyed: mean 2.6 / p90 3.6 / max 4.9 min — still beats intact 7-station design (computed)", "status": "stated", "source": "masterplan §4 table"},
-        "crime_target": {"value": 0.5, "unit": "homicides per 100k/yr", "metric": "homicide", "status": "stated", "source": "masterplan §8", "note": "plus overall victimisation <50% of host-nation baseline"},
-        "prison_target": {"value": null, "status": "missing", "note": "custody 'reserved for danger'; Norway ~20% recidivism benchmark; no rate number"},
-        "economic_model": {"value": "Market Georgism with a universal floor", "status": "stated", "source": "masterplan §6", "mechanisms": ["City Land Trust holds all land; 49-yr auctioned leaseholds, 5-yr rent reassessment", "land rent is primary revenue — no city income or sales tax", "Universal Basics funded by land rent", "Job Guarantee as buffer stock", "38% non-market housing, income-mix quotas per block", "utilities at cost"]},
-        "gini_target": {"value": null, "status": "missing", "note": "'inequality compression' is lever #1 but no Gini number"},
-        "energy_demand_avg_mw": {"value": 630, "unit": "MW", "status": "stated", "source": "masterplan §3 (5.5 MWh/person/yr)"},
-        "energy_demand_peak_mw": {"value": 1500, "unit": "MW", "status": "stated", "source": "masterplan §3"},
-        "energy_mix": {"value": "rooftop PV ~1 GWp + 25 km2 hinterland agrivoltaics + wind where available + firm block (geothermal, 2 SMRs, or biomass CHP)", "status": "stated", "source": "masterplan §3", "note": "no % split — firm block sized by geography"},
-        "battery_storage_gwh": {"value": 4, "unit": "GWh + seasonal sand/water thermal pits", "status": "stated", "source": "masterplan §3"},
-        "energy_autonomy_days": {"value": null, "status": "missing", "note": "72 h islanding per district for critical loads stated; whole-city autonomy days not"},
-        "water_demand": {"value": 128767, "unit": "m3/day municipal", "status": "derived", "source": "47 Mm3/yr / 365 (130 L/person/day stated); irrigation ~10x municipal in a dry year"},
-        "water_sources": {"value": "rooftop catchment (mandated) + wedge reservoirs + 40% potable reuse; desal only for coastal-arid instances", "status": "stated", "source": "masterplan §3", "note": "no full % split of the stack"},
-        "water_reserve_days": {"value": 3, "unit": "days (72 h per district, L14)", "status": "stated", "source": "masterplan §7"},
-        "food_self_sufficiency": {"value": "98% of calories from ~1,000 km2 hinterland (plant-forward, 800-1,000 m2/person); vertical farms ~2% of calories (200 ha)", "status": "stated", "source": "masterplan §3"},
-        "food_reserve_months": {"value": 18, "unit": "months staple grain per district", "status": "stated", "source": "masterplan §3, L5"},
-        "housing_floor_m2_per_person": {"value": 35, "unit": "m2 net + >=2 rooms/household + 2 h direct sun", "status": "stated", "source": "masterplan §5"},
-        "noise_limit_db": {"value": "<=55 dB(A) day / 45 night at every facade; quiet side mandatory", "status": "stated", "source": "masterplan §5"},
-        "commute_target": {"value": "median <=22 min door-to-door, p90 <=35 min; 90% within 15-min walk of daily needs", "status": "stated", "source": "masterplan §5"},
-        "local_reserve_hours": {"value": 72, "unit": "hours water per district + 7 d food distribution capacity (L14)", "status": "stated", "source": "masterplan §7"}
-      },
-      "sim_capabilities": {
-        "fire": {"supported": true, "confidence": "high", "notes": "Best-specified of the four: materials, 130 m block grid, 20 m streets, no gas grid, wedge firebreaks, full response distribution incl. station-loss case."},
-        "flood": {"supported": true, "confidence": "high", "notes": "+15 m berm, sacrificial 400 m band, wedge floodways all quantified; 1-in-1000-yr basis. Terrain beyond these features still unmapped."},
-        "quake": {"supported": true, "confidence": "high", "notes": "The repo computes its own 25%-station-loss case; isolation scope, soft-storey ban and microzonation stated."},
-        "population": {"supported": true, "confidence": "high", "notes": "Charter floors quantified and audited (wellbeing survey, churn triggers) — richest basis for agent needs."}
-      }
+    "built_up_density_per_km2": {
+     "value": null,
+     "status": "missing",
+     "note": "masterplan gives ring populations and radii but never a built-up density figure"
     },
-    {
-      "id": "resilient-city",
-      "name": "Resilient City (ChatGPT)",
-      "repo": "chat-gpt-code/resilient-city",
-      "author_note": "Produced by ChatGPT (added later at the user's request), not one of the original four Claude-model designs. Normalised on the same terms.",
-      "source_files": ["masterplan.md", "iteration_log.md", "index.html"],
-      "layout": {
-        "type": "square-grid",
-        "urban_km": 10,
-        "grid": "5x5",
-        "districts": 25,
-        "district_km": 2,
-        "district_pop": 40000,
-        "hospitals": 5,
-        "note": "5×5 array of 2×2 km mixed-use districts; one combined fire/medical/rescue station + one water/refuge tower per district; 5 hospitals (centre + 4 quadrant centres)"
-      },
-      "figures": {
-        "population": {"value": 1000000, "unit": "people", "status": "stated", "source": "masterplan §1"},
-        "urban_area_km2": {"value": 100, "unit": "km2", "status": "stated", "source": "masterplan §1 (10×10 km)"},
-        "gross_density_per_km2": {"value": 10000, "unit": "people/km2", "status": "stated", "source": "masterplan §2.3"},
-        "built_up_density_per_km2": {"value": "20000-35000", "unit": "people/km2 (inhabited mixed-use portions)", "status": "stated", "source": "masterplan §2.3"},
-        "hinterland_km2": {"value": 4000, "unit": "km2 (reference; range 3,500-4,500)", "status": "stated", "source": "masterplan §1, §4.2"},
-        "building_storeys_typical": {"value": "6-18 storeys; taller towers exceptional", "status": "stated", "source": "masterplan §2.3"},
-        "building_materials": {"value": "ductile reinforced concrete, steel or engineered timber; low-clinker cement, reclaimed aggregate, electric-furnace recycled metal", "status": "stated", "source": "masterplan §3.2, §4.5"},
-        "street_width_m": {"value": null, "status": "missing", "note": "superblocks + redundant street grid described; no street cross-section dimension stated"},
-        "building_spacing": {"value": null, "status": "missing", "note": "2×2 km districts with superblocks and a redundant utility/transit street grid stated, but no block-grid dimension — fire-spread geometry approximated"},
-        "gas_grid": {"value": "mostly electrified (transport/heating/industry); automatic gas & hazardous-process isolation — gas not fully eliminated", "status": "stated", "source": "masterplan §1, §3.2", "note": "unlike Meridian-F's outright gas ban, gas is present but auto-isolated — some post-quake ignition risk retained"},
-        "green_cover_pct": {"value": null, "status": "missing", "note": "green access set as ratios (>=30 m2/resident across scales, >=10 m2 within the urban boundary, park within 300 m) but no city-wide canopy % figure"},
-        "firebreaks": {"value": "green corridors double as firebreaks (planted to avoid continuous dry-fuel paths); district-boundary green strips", "status": "stated", "source": "masterplan §3.5"},
-        "seismic_design_basis": {"value": "site-specific performance-based: Immediate Occupancy (frequent), Repairable (design-basis), No Collapse (MCE), No Progressive Collapse (beyond-design)", "status": "stated", "source": "masterplan §3.2", "note": "framework stated but NO magnitude number (region-tuned) — sim assumes generic M8.0 MCE, flagged"},
-        "base_isolation_scope": {"value": "hospitals, control centres, water plants, refuge buildings, and selected residential/civic buildings", "status": "stated", "source": "masterplan §3.2"},
-        "soft_storey_ban": {"value": null, "status": "missing", "note": "capacity design + strong-column/weak-beam stated, but no explicit soft-storey prohibition (contrast Meridian-F/S which ban it outright)"},
-        "drift_capacity_m": {"value": null, "status": "missing"},
-        "quake_survival_target_pct": {"value": null, "status": "missing", "note": "qualitative 'no collapse at MCE / no progressive collapse beyond design'; no % survival figure"},
-        "tsunami_design_height_m": {"value": null, "status": "missing", "note": "defence is avoidance (build landward of the site-specific extreme inundation line); the inundation height itself is never numbered"},
-        "flood_defence_layers": {"value": "avoidance-first: uninhabited wetland/dune/floodable-park belt; development landward of extreme inundation line; raised redundant high-ground route; vertical-evacuation structures; breakaway ground-floor walls on edge structures; scour-designed deep foundations; independent-power drainage pumps; local detection", "status": "stated", "source": "masterplan §3.3"},
-        "site_elevation_model": {"value": "partial — critical facilities on strongest ground above credible flood levels; raised high-ground evacuation route; no terrain map", "status": "stated", "source": "masterplan §3.1, §3.3"},
-        "stormwater_drainage": {"value": "dedicated third network for stormwater & flood conveyance; gravity drainage + independent-power pumps; looped water network with district cisterns", "status": "stated", "source": "masterplan §3.5, §4.3"},
-        "wind_design": {"value": "greater of local code event or site-specific study; continuous load path, impact-rated glazing, hip roofs, refuge rooms; higher importance factor for critical buildings", "status": "stated", "source": "masterplan §3.4", "note": "no single design wind speed number"},
-        "fire_stations": {"value": 25, "status": "stated", "source": "masterplan §2.1, §6.1", "note": "one combined fire/medical/rescue station at every 2×2 km district centre"},
-        "fire_response_median_min": {"value": 3.96, "unit": "min", "status": "stated", "source": "masterplan §6.2", "definition": "computed indicative fire arrival: 60 s dispatch + 75 s turnout + expected 1 km Manhattan at 35 km/h; ambulance equivalent 3.46 min"},
-        "fire_response_p95_min": {"value": "7.05 min worst-corner (degraded 25 km/h roads); target 90% <5 min", "status": "stated", "source": "masterplan §6.2, §6.3", "note": "explicit p95 not printed; the repo's script computes percentiles but the doc reports mean + worst-corner"},
-        "ems_response_median_min": {"value": 3.46, "unit": "min", "status": "stated", "source": "masterplan §6.2", "definition": "computed: 45 s dispatch + 60 s turnout + 1 km at 35 km/h"},
-        "ems_ambulances": {"value": null, "status": "missing", "note": "combined stations described; ambulance/vehicle counts not given"},
-        "police_response_target_min": {"value": null, "status": "missing", "note": "policing reoriented to harm reduction; no police response-time target and no separate police stations (folded into the 25 district stations)"},
-        "police_stations": {"value": "combined into the 25 district stations (no separate police stations)", "status": "stated", "source": "masterplan §6.1, §7"},
-        "hospitals": {"value": "5 (city centre + 4 quadrant centres) + local stabilisation clinics", "status": "stated", "source": "masterplan §2.1, §6.1"},
-        "response_degraded_scenario": {"value": "degraded-road (25 km/h) worst-corner 7.05 min; no emergency facility dependent on one bridge/pipe/substation/data link; >=2 physically separate routes into every district", "status": "stated", "source": "masterplan §6.2, §6.3"},
-        "crime_target": {"value": 2, "unit": "homicides per 100k/yr", "metric": "homicide", "status": "stated", "source": "masterplan §7.1", "note": "multi-metric target: also serious violent victimisation <10/1,000/yr and residential burglary <5/1,000 households/yr"},
-        "prison_target": {"value": null, "status": "missing", "note": "prisons 'reserved primarily for continuing serious risk'; no incarceration-rate number"},
-        "economic_model": {"value": "Constitutional social-market and commons economy", "status": "stated", "source": "masterplan §8", "mechanisms": ["three domains: universal provision, regulated markets, ecological allocation (annual public resource budgets + tradable permits above an allowance)", "public land trust with inheritable/mortgageable leases", ">=40% permanently non-market public/cooperative housing", "standing job guarantee", "32-hour full-time standard", "land-value charges + progressive tax fund universal provision"]},
-        "gini_target": {"value": null, "status": "missing", "note": "contentment thresholds set (>=80% life satisfaction, no quintile gap) but no Gini figure"},
-        "energy_demand_avg_mw": {"value": 913, "unit": "MW", "status": "derived", "source": "8 TWh/yr demand / 8,760 h", "note": "generation sized to ~12 TWh/yr (~1.37 GW avg) for storage losses/reserve"},
-        "energy_demand_peak_mw": {"value": null, "status": "missing", "note": "no peak load stated; the 2.5 GW figure is an emergency-demand / firm-capability target, not a peak load"},
-        "energy_mix": {"value": "locally selected portfolio: solar, wind, geothermal, hydro, waste biogas, biomass backup, nuclear only if the no-import rule is genuinely met; >=2.5 GW firm; no single plant >15% of firm capacity", "status": "stated", "source": "masterplan §4.4", "note": "no percentage split — region-tuned"},
-        "battery_storage_gwh": {"value": null, "status": "missing", "note": "explicitly declines a single battery figure: a 72 h / 180 GWh reserve is stated to be 'too large as lithium batteries alone', met instead by batteries + thermal + water + dispatchable generation + hydrogen"},
-        "energy_autonomy_days": {"value": 3, "unit": "days", "status": "stated", "source": "masterplan §3.5, §4.4", "note": "72 h electrical reserve target + 72 h passive building survivability"},
-        "water_demand": {"value": 150000, "unit": "m3/day domestic", "status": "stated", "source": "masterplan §4.3", "note": "treatment capacity >=200,000 m3/day; industry & agriculture on separate budgets"},
-        "water_sources": {"value": "protected upland catchments, sustainable-yield groundwater, rainwater, reclaimed wastewater, coastal desalination (fallback), seasonal reservoirs & managed aquifer recharge", "status": "stated", "source": "masterplan §4.3", "note": "no percentage split; three-network potable/reclaimed/stormwater system"},
-        "water_reserve_days": {"value": 180, "unit": "days (regional; district storage >=7 days)", "status": "stated", "source": "masterplan §4.3"},
-        "food_self_sufficiency": {"value": "sized to 110% of caloric need (963.6 Tcal/yr for 1M @ 2,400 kcal/day); plant-forward; 4,000 km² hinterland; urban farms for perishables only (not staple calories)", "status": "stated", "source": "masterplan §4.2"},
-        "food_reserve_months": {"value": 12, "unit": "months staple calories (strategic reserve)", "status": "stated", "source": "masterplan §4.2"},
-        "housing_floor_m2_per_person": {"value": 35, "unit": "m2 (35 one adult, 50 two adults, +12 per extra resident)", "status": "stated", "source": "masterplan §5.1"},
-        "noise_limit_db": {"value": "<=30 dBA bedroom at night; <=45 dBA exterior residential night where feasible", "status": "stated", "source": "masterplan §5.1, §5.3"},
-        "commute_target": {"value": "median <15 min; p90 <25 min; daily-needs trip <10 min for 90%; 100% of homes within 400 m of daily needs or transit", "status": "stated", "source": "masterplan §2.2, §5.3"},
-        "local_reserve_hours": {"value": 168, "unit": "hours (7 days district potable water; + 72 h passive survivability)", "status": "stated", "source": "masterplan §4.3, §3.5"}
-      },
-      "sim_capabilities": {
-        "fire": {"supported": true, "confidence": "medium", "notes": "Materials, 25-station computed response, looped water + district cisterns and green firebreak corridors stated, and fire-following-earthquake is explicitly addressed. Street widths / block grid are NOT dimensioned, so intra-district spread is approximated from density."},
-        "flood": {"supported": true, "confidence": "medium", "notes": "Strategy is avoidance (build landward of the inundation line) + a wetland/floodable-park belt + a 3rd stormwater network — well described, but the design inundation height is never numbered, so the surge threshold is an assumption (flagged). The waterfront belt is deliberately sacrificial, not a wall."},
-        "quake": {"supported": true, "confidence": "medium", "notes": "Performance framework + base-isolation scope + capacity design stated, but no magnitude basis (generic M8.0 assumed), no explicit soft-storey ban, and no % survival target. Gas is auto-isolated but not eliminated, so some post-quake ignition risk remains."},
-        "population": {"supported": true, "confidence": "high", "notes": "Among the most quantified: 35 m² housing floor, noise/green/commute floors, and explicit contentment SLOs (>=80% life satisfaction, no district >10 pts below average) plus job guarantee, UBS and per-district mental health."}
-      }
+    "hinterland_km2": {
+     "value": 68700,
+     "unit": "km2",
+     "status": "derived",
+     "source": "25-150 km annulus stated as extractive hinterland; area = pi*(150^2-25^2)",
+     "note": "repo states '1.2M hectares' (12,000 km2) for resource extraction within it"
+    },
+    "building_storeys_typical": {
+     "value": "8-35 by ring",
+     "status": "stated",
+     "source": "masterplan §1.1"
+    },
+    "building_materials": {
+     "value": "CLT or reinforced concrete (ductile detailing)",
+     "status": "stated",
+     "source": "masterplan §2.1"
+    },
+    "street_width_m": {
+     "value": null,
+     "status": "missing",
+     "note": "'strict building separation distances' asserted in §10.1 but no number anywhere"
+    },
+    "building_spacing": {
+     "value": null,
+     "status": "missing",
+     "note": "no spacing, setback, or block-grid dimension stated — fire-spread modelling for Solaris is low-confidence"
+    },
+    "gas_grid": {
+     "value": null,
+     "status": "missing",
+     "note": "post-quake fire ignition source unaddressed (Meridian-F explicitly bans gas; Solaris silent)"
+    },
+    "green_cover_pct": {
+     "value": 35,
+     "unit": "%",
+     "status": "stated",
+     "source": "masterplan §1.3"
+    },
+    "firebreaks": {
+     "value": "pocket parks every 200 m; radial canal corridors",
+     "status": "stated",
+     "source": "masterplan §1.3",
+     "note": "not designed as firebreaks; canal corridors are stormwater+recreation"
+    },
+    "seismic_design_basis": {
+     "value": "9.0 Mw",
+     "status": "stated",
+     "source": "masterplan §2.1"
+    },
+    "base_isolation_scope": {
+     "value": "all buildings >=8 storeys",
+     "status": "stated",
+     "source": "masterplan §2.1",
+     "note": "broadest isolation scope of the four designs"
+    },
+    "drift_capacity_m": {
+     "value": 1.5,
+     "unit": "m lateral",
+     "status": "stated",
+     "source": "masterplan §2.1"
+    },
+    "soft_storey_ban": {
+     "value": null,
+     "status": "missing",
+     "note": "not addressed (waterfront buildings deliberately have open lower storeys for tsunami)"
+    },
+    "quake_survival_target_pct": {
+     "value": 99.5,
+     "unit": "% at 9.0 Mw",
+     "status": "stated",
+     "source": "masterplan §12"
+    },
+    "tsunami_design_height_m": {
+     "value": 15,
+     "unit": "m",
+     "status": "stated",
+     "source": "masterplan §2.2"
+    },
+    "flood_defence_layers": {
+     "value": "5 m artificial dunes + mangroves + breakwaters; open lower 3 storeys within 2 km of coast; roof evacuation; 2-min sensor warning",
+     "status": "stated",
+     "source": "masterplan §2.2"
+    },
+    "site_elevation_model": {
+     "value": null,
+     "status": "missing",
+     "note": "no ground elevations, drainage capacities, or inundation map — flood simulation is low-confidence and defence-layer-based only"
+    },
+    "stormwater_drainage": {
+     "value": "radial canal corridors",
+     "status": "stated",
+     "source": "masterplan §1.3",
+     "note": "no capacity figures"
+    },
+    "wind_design": {
+     "value": "Category 5 / 250 km/h sustained",
+     "status": "stated",
+     "source": "masterplan §2.3"
+    },
+    "fire_stations": {
+     "value": 17,
+     "status": "stated",
+     "source": "masterplan §4.1",
+     "note": "16 in habitable city + 1 hinterland"
+    },
+    "fire_response_median_min": {
+     "value": 4.2,
+     "unit": "min",
+     "status": "stated",
+     "source": "masterplan §4.1",
+     "definition": "simulated median, habitable city, K-medians station placement + 1,000 random incidents"
+    },
+    "fire_response_p95_min": {
+     "value": 5.2,
+     "unit": "min",
+     "status": "stated",
+     "source": "masterplan §4.1",
+     "definition": "95th percentile, habitable city"
+    },
+    "ems_response_median_min": {
+     "value": 5.1,
+     "unit": "min",
+     "status": "stated",
+     "source": "masterplan §4.2"
+    },
+    "ems_ambulances": {
+     "value": 40,
+     "status": "stated",
+     "source": "masterplan §4.2"
+    },
+    "police_response_target_min": {
+     "value": 8,
+     "unit": "min",
+     "status": "stated",
+     "source": "masterplan §7.4",
+     "definition": "target, not simulated"
+    },
+    "police_stations": {
+     "value": 12,
+     "status": "stated",
+     "source": "masterplan §4.3"
+    },
+    "hospitals": {
+     "value": "1 Level-1 trauma (1,200 beds) + 6 district (300 beds) + 25 urgent-care",
+     "status": "stated",
+     "source": "masterplan §4.2"
+    },
+    "response_degraded_scenario": {
+     "value": null,
+     "status": "missing",
+     "note": "no post-earthquake / station-loss response analysis (contrast: Meridian-F and Meridian-S both model it)"
+    },
+    "crime_target": {
+     "value": 15,
+     "unit": "crimes per 100k/yr",
+     "metric": "total crime",
+     "status": "stated",
+     "source": "masterplan §5.1",
+     "note": "NOT comparable to others: 15 TOTAL crimes/100k is far below any real city (Tokyo cited in-repo at 25/100k); treat as the design's own claim"
+    },
+    "prison_target": {
+     "value": 50,
+     "unit": "prisoners per 100k",
+     "status": "stated",
+     "source": "masterplan §7.4"
+    },
+    "economic_model": {
+     "value": "Hybrid cooperative capitalism",
+     "status": "stated",
+     "source": "masterplan §6",
+     "mechanisms": [
+      "worker ownership mandatory >250 employees",
+      "municipal utilities",
+      "universal basic services",
+      "job guarantee at $22/h min wage",
+      "executive pay cap 15x median",
+      "progressive income tax 20/35%",
+      "land value tax 2%",
+      "carbon tax $50/t"
+     ]
+    },
+    "gini_target": {
+     "value": 0.28,
+     "status": "stated",
+     "source": "masterplan §5.3"
+    },
+    "energy_demand_avg_mw": {
+     "value": 1200,
+     "unit": "MW",
+     "status": "stated",
+     "source": "masterplan §3.1"
+    },
+    "energy_demand_peak_mw": {
+     "value": null,
+     "status": "missing"
+    },
+    "energy_mix": {
+     "value": {
+      "solar": 40,
+      "wind": 35,
+      "geothermal": 15,
+      "hydro": 10
+     },
+     "unit": "% annual",
+     "status": "stated",
+     "source": "masterplan §3.1"
+    },
+    "battery_storage_gwh": {
+     "value": 10,
+     "unit": "GWh",
+     "status": "stated",
+     "source": "masterplan §3.1"
+    },
+    "energy_autonomy_days": {
+     "value": 21,
+     "unit": "days",
+     "status": "stated",
+     "source": "masterplan §3.1"
+    },
+    "water_demand": {
+     "value": 2500000,
+     "unit": "m3/day",
+     "status": "stated",
+     "source": "masterplan §3.3",
+     "note": "city + agriculture"
+    },
+    "water_sources": {
+     "value": {
+      "rainfall": 60,
+      "desalination": 25,
+      "recycling": 15
+     },
+     "unit": "%",
+     "status": "stated",
+     "source": "masterplan §3.3"
+    },
+    "water_reserve_days": {
+     "value": 180,
+     "unit": "days",
+     "status": "stated",
+     "source": "masterplan §12"
+    },
+    "food_self_sufficiency": {
+     "value": "100% vegetables+protein, 60% grains target stated in §3.2 header, but §3.2 also claims 2.25 Mt/yr grain surplus; iteration 8 found 50% of meat must be imported",
+     "status": "stated",
+     "source": "masterplan §3.2 + README iteration 8",
+     "note": "internally inconsistent between sections; recorded as stated"
+    },
+    "food_reserve_months": {
+     "value": 6,
+     "unit": "months (extendable to 12)",
+     "status": "stated",
+     "source": "masterplan §3.2"
+    },
+    "housing_floor_m2_per_person": {
+     "value": 30,
+     "unit": "m2",
+     "status": "stated",
+     "source": "masterplan §7.2"
+    },
+    "noise_limit_db": {
+     "value": null,
+     "status": "missing",
+     "note": "'strict noise codes' asserted, no numbers"
+    },
+    "commute_target": {
+     "value": "median 25 min edge-to-centre transit",
+     "status": "stated",
+     "source": "masterplan §1.2"
+    },
+    "local_reserve_hours": {
+     "value": null,
+     "status": "missing",
+     "note": "no per-neighbourhood 72h reserve concept; city-level reserves only"
     }
-  ]
+   },
+   "sim_capabilities": {
+    "fire": {
+     "supported": true,
+     "confidence": "low",
+     "notes": "Materials (CLT/RC) and response times are stated, but building spacing, street widths and block dimensions are NOT — spread geometry uses ring density only. Treat spread extent as indicative."
+    },
+    "flood": {
+     "supported": true,
+     "confidence": "low",
+     "notes": "Tsunami defence layers (5 m dunes, 15 m design wave) are stated, but no site elevations or drainage capacities exist. Simulation models defence-layer overtopping only, not terrain."
+    },
+    "quake": {
+     "supported": true,
+     "confidence": "medium",
+     "notes": "Design basis (9.0 Mw), isolation scope (>=8 storeys) and 99.5% survival target stated. No post-quake station-loss analysis in source; degradation modelled generically."
+    },
+    "population": {
+     "supported": true,
+     "confidence": "medium",
+     "notes": "UBS, job guarantee, mental-health ratios stated; baseline needs derivable."
+    }
+   }
+  },
+  {
+   "id": "meridian-s",
+   "name": "Meridian (Sonnet)",
+   "model": "Claude Sonnet",
+   "repo": "claude-code-sonnet",
+   "source_files": [
+    "masterplan.md",
+    "iteration_log.md",
+    "scripts/city_geometry.py",
+    "scripts/emergency_response.py",
+    "scripts/resource_budget.py"
+   ],
+   "layout": {
+    "type": "fractal-hex",
+    "built_up_radius_km": 4.15,
+    "cell_apothem_m": 400,
+    "cells_per_district": 7,
+    "districts": 6,
+    "civic_core": true,
+    "inter_district_buffer_m": 180,
+    "note": "city = civic core + 6 districts; district = hub cell + 6 cells; ~43 hexes total"
+   },
+   "figures": {
+    "population": {
+     "value": 467031,
+     "unit": "people",
+     "status": "stated",
+     "source": "masterplan §3 (computed by scripts/city_geometry.py)"
+    },
+    "urban_area_km2": {
+     "value": 54.0,
+     "unit": "km2",
+     "status": "stated",
+     "source": "masterplan §1"
+    },
+    "gross_density_per_km2": {
+     "value": 8650,
+     "unit": "people/km2",
+     "status": "stated",
+     "source": "masterplan §4",
+     "note": "city-wide average incl. buffers"
+    },
+    "built_up_density_per_km2": {
+     "value": 22000,
+     "unit": "people/km2",
+     "status": "stated",
+     "source": "masterplan §4",
+     "note": "cell-level gross residential density"
+    },
+    "hinterland_km2": {
+     "value": 388,
+     "unit": "km2 farmland (7.2x city) + 17.8 km2 aquaculture bay",
+     "status": "stated",
+     "source": "masterplan §3"
+    },
+    "building_storeys_typical": {
+     "value": "6-10 (housing); 25-30 landmark towers at district hubs only",
+     "status": "stated",
+     "source": "masterplan §4"
+    },
+    "building_materials": {
+     "value": "ductile reinforced concrete or mass timber moment frames with shear walls",
+     "status": "stated",
+     "source": "masterplan §2.1"
+    },
+    "street_width_m": {
+     "value": null,
+     "status": "missing",
+     "note": "cell geometry and 180 m inter-district buffers stated; street cross-sections not"
+    },
+    "building_spacing": {
+     "value": "180 m green buffers between districts (double as firebreaks); shared green edge around each cell",
+     "status": "stated",
+     "source": "scripts/city_geometry.py, masterplan §1"
+    },
+    "gas_grid": {
+     "value": null,
+     "status": "missing"
+    },
+    "green_cover_pct": {
+     "value": null,
+     "status": "missing",
+     "note": ">=12 m2 green within 5-min walk stated as QoL floor, but no city-wide % figure"
+    },
+    "firebreaks": {
+     "value": "inter-district green corridors explicitly noted as firebreaks",
+     "status": "stated",
+     "source": "scripts/city_geometry.py comments"
+    },
+    "seismic_design_basis": {
+     "value": "M9-class subduction (coastal Pacific-Rim worst case)",
+     "status": "stated",
+     "source": "masterplan §2"
+    },
+    "base_isolation_scope": {
+     "value": "critical/hub buildings only (hospitals, schools, fire/EMS stations, civic core)",
+     "status": "stated",
+     "source": "masterplan §2.1"
+    },
+    "drift_capacity_m": {
+     "value": null,
+     "status": "missing"
+    },
+    "soft_storey_ban": {
+     "value": true,
+     "status": "stated",
+     "source": "masterplan §2.1"
+    },
+    "quake_survival_target_pct": {
+     "value": null,
+     "status": "missing",
+     "note": "no quantified survival target; qualitative performance goals only"
+    },
+    "tsunami_design_height_m": {
+     "value": null,
+     "status": "missing",
+     "note": "refuge storeys 'above the design tsunami height' and high-ground network at +15-20 m stated, but the design wave height itself is never given"
+    },
+    "flood_defence_layers": {
+     "value": "dune+mangrove buffer; seawall with retractable surge gate; elevated ring road berm; refuge storey per building; critical services on +15-20 m podium network",
+     "status": "stated",
+     "source": "masterplan §2.2"
+    },
+    "site_elevation_model": {
+     "value": "partial — critical podium network at +15-20 m stated; no terrain map",
+     "status": "stated",
+     "source": "masterplan §2.2"
+    },
+    "stormwater_drainage": {
+     "value": null,
+     "status": "missing",
+     "note": "buffers include 'drainage swales' (geometry script) but no capacities"
+    },
+    "wind_design": {
+     "value": "Category 5-equivalent; Miami-Dade continuous load path; TMD/TLD on landmark towers",
+     "status": "stated",
+     "source": "masterplan §2.3"
+    },
+    "fire_stations": {
+     "value": "6 district main fire/EMS stations + ~43 cell-hub micro-posts (paramedic e-bike + AED drone)",
+     "status": "derived",
+     "source": "geometry: 1 main station per district hub, micro-post at every cell hub",
+     "note": "exact station count not printed as a single number in repo"
+    },
+    "fire_response_median_min": {
+     "value": 2.0,
+     "unit": "min",
+     "status": "stated",
+     "source": "masterplan §5 (121 s)",
+     "definition": "median travel to residents WITH cell micro-posts, uncongested graph model; district-hub-only average-to-farthest is 238 s"
+    },
+    "fire_response_p95_min": {
+     "value": null,
+     "status": "missing",
+     "note": "model reports median and zero-points-over-300s, not a p95"
+    },
+    "ems_response_median_min": {
+     "value": 2.0,
+     "unit": "min",
+     "status": "stated",
+     "source": "masterplan §5 (121 s, same integrated posts)"
+    },
+    "ems_ambulances": {
+     "value": null,
+     "status": "missing"
+    },
+    "police_response_target_min": {
+     "value": null,
+     "status": "missing",
+     "note": "policing legitimacy/accountability specified; response times and station counts are not"
+    },
+    "police_stations": {
+     "value": null,
+     "status": "missing"
+    },
+    "hospitals": {
+     "value": "1 per district hub (6) + none solely in civic core (deliberate)",
+     "status": "stated",
+     "source": "masterplan §1"
+    },
+    "response_degraded_scenario": {
+     "value": "double failure (district hub + civic core down): 454 s mean mutual aid — stated as accepted limitation; 72 h cell reserves are the fallback",
+     "status": "stated",
+     "source": "masterplan §5"
+    },
+    "crime_target": {
+     "value": 150,
+     "unit": "violent crimes per 100k/yr",
+     "metric": "violent crime",
+     "status": "stated",
+     "source": "masterplan §6"
+    },
+    "prison_target": {
+     "value": null,
+     "status": "missing",
+     "note": "restorative-first track stated; no incarceration-rate number"
+    },
+    "economic_model": {
+     "value": "Commons/market hybrid (3 tiers)",
+     "status": "stated",
+     "source": "masterplan §7",
+     "mechanisms": [
+      "decommodified commons tier (housing/health/education/water/transit)",
+      "land value tax, no tax on labour below living-cost threshold",
+      "regulated market with sector antitrust caps",
+      "job guarantee",
+      "local demurrage currency"
+     ]
+    },
+    "gini_target": {
+     "value": null,
+     "status": "missing"
+    },
+    "energy_demand_avg_mw": {
+     "value": null,
+     "status": "missing",
+     "note": "peak stated, average not"
+    },
+    "energy_demand_peak_mw": {
+     "value": 685,
+     "unit": "MW design peak",
+     "status": "stated",
+     "source": "masterplan §3"
+    },
+    "energy_mix": {
+     "value": {
+      "offshore_wind": 55,
+      "solar": 30,
+      "tidal_wave_biogas": 15
+     },
+     "unit": "% supply",
+     "status": "stated",
+     "source": "masterplan §3"
+    },
+    "battery_storage_gwh": {
+     "value": 3.4,
+     "unit": "GWh (~8 h average load)",
+     "status": "stated",
+     "source": "masterplan §3"
+    },
+    "energy_autonomy_days": {
+     "value": 0.33,
+     "unit": "days (8 h battery)",
+     "status": "derived",
+     "source": "3.4 GWh / average load",
+     "note": "no multi-day autonomy claim made"
+    },
+    "water_demand": {
+     "value": 130800,
+     "unit": "m3/day",
+     "status": "stated",
+     "source": "masterplan §3 (130.8 ML/day)"
+    },
+    "water_sources": {
+     "value": {
+      "rainfall": 59,
+      "recycling": 40,
+      "desalination": 1
+     },
+     "unit": "%",
+     "status": "stated",
+     "source": "masterplan §3"
+    },
+    "water_reserve_days": {
+     "value": null,
+     "status": "missing",
+     "note": "72 h cell-hub reserves stated for emergencies; no city-level reserve-days figure"
+    },
+    "food_self_sufficiency": {
+     "value": "life-critical necessities only, explicitly scoped; staples from 388 km2 hinterland at realistic yields; vertical farms greens-only (88.8 ha)",
+     "status": "stated",
+     "source": "masterplan §3"
+    },
+    "food_reserve_months": {
+     "value": 0.1,
+     "unit": "months (72 h per cell hub)",
+     "status": "stated",
+     "source": "masterplan §5, §8",
+     "note": "no long-term strategic food reserve stated — only 72 h local stocks"
+    },
+    "housing_floor_m2_per_person": {
+     "value": 35,
+     "unit": "m2",
+     "status": "stated",
+     "source": "masterplan §4"
+    },
+    "noise_limit_db": {
+     "value": "<=55 dB facades / <=45 dB courtyards",
+     "status": "stated",
+     "source": "masterplan §4"
+    },
+    "commute_target": {
+     "value": ">=90% within 15-minute walk/bike/transit of daily needs",
+     "status": "stated",
+     "source": "masterplan §4"
+    },
+    "local_reserve_hours": {
+     "value": 72,
+     "unit": "hours (water/food/first-aid per cell hub)",
+     "status": "stated",
+     "source": "masterplan §5, §8"
+    }
+   },
+   "sim_capabilities": {
+    "fire": {
+     "supported": true,
+     "confidence": "medium",
+     "notes": "Materials, firebreak buffers (180 m) and micro-post response model stated; street widths within cells missing, so intra-cell spread is approximated from density."
+    },
+    "flood": {
+     "supported": true,
+     "confidence": "medium",
+     "notes": "Defence layers and the +15-20 m critical podium are stated, but the design tsunami height itself is missing — overtopping threshold is therefore user-set, flagged in UI."
+    },
+    "quake": {
+     "supported": true,
+     "confidence": "high",
+     "notes": "The repo itself models the degraded double-failure case (454 s mutual aid); isolation scope and soft-storey ban stated."
+    },
+    "population": {
+     "supported": true,
+     "confidence": "high",
+     "notes": "QoL floors are quantified (35 m2, noise, green access, 15-min city) — good basis for agent needs."
+    }
+   }
+  },
+  {
+   "id": "civitas",
+   "name": "CIVITAS",
+   "model": "Claude Opus 4.8",
+   "repo": "claude-code-opus-4.8",
+   "source_files": [
+    "masterplan.md",
+    "iteration_log.md",
+    "sim/emergency_response.py",
+    "sim/self_sufficiency.py"
+   ],
+   "repo_note": "This repo was renamed from claude-code-opus to claude-code-opus-4.8 when Opus 5's HEARTH design took the claude-code-opus name.",
+   "layout": {
+    "type": "single-hex",
+    "hex_circumradius_m": 2630,
+    "districts": 6,
+    "civic_core_radius_m": 460,
+    "note": "flat-top hexagon, six wedge districts around a central civic core; ~35-40k residents per district"
+   },
+   "figures": {
+    "population": {
+     "value": 250000,
+     "unit": "people",
+     "status": "stated",
+     "source": "masterplan header"
+    },
+    "urban_area_km2": {
+     "value": 18.0,
+     "unit": "km2",
+     "status": "stated",
+     "source": "masterplan §1.1"
+    },
+    "gross_density_per_km2": {
+     "value": 13900,
+     "unit": "people/km2",
+     "status": "stated",
+     "source": "masterplan §1.3"
+    },
+    "built_up_density_per_km2": {
+     "value": 13900,
+     "unit": "people/km2",
+     "status": "stated",
+     "source": "same figure — the 18 km2 core is all built-up",
+     "note": "Barcelona Eixample cited at ~35,000/km2 net as the typology ceiling"
+    },
+    "hinterland_km2": {
+     "value": 244,
+     "unit": "km2 (217 farm + 27 energy; total region 262 km2, ~9 km radius)",
+     "status": "stated",
+     "source": "masterplan §3"
+    },
+    "building_storeys_typical": {
+     "value": "5-8 perimeter blocks; landmark tower + vertical farms taller",
+     "status": "stated",
+     "source": "masterplan §1.3"
+    },
+    "building_materials": {
+     "value": "RC/steel ductile frames; CLT mid-rise where forestry supplies; rammed earth/CSEB; geopolymer cement",
+     "status": "stated",
+     "source": "masterplan §2.1, §3.4"
+    },
+    "street_width_m": {
+     "value": null,
+     "status": "missing",
+     "note": "block typology described; street cross-sections not dimensioned"
+    },
+    "building_spacing": {
+     "value": null,
+     "status": "missing",
+     "note": "perimeter-block courtyards implied; no block-grid dimension given"
+    },
+    "gas_grid": {
+     "value": null,
+     "status": "missing",
+     "note": "buried utilities stated for wind; gas not addressed"
+    },
+    "green_cover_pct": {
+     "value": 30,
+     "unit": "% tree canopy minimum",
+     "status": "stated",
+     "source": "masterplan §4"
+    },
+    "firebreaks": {
+     "value": "farm belt is 'polyculture mosaic with firebreaks' (hinterland); urban firebreaks not specified",
+     "status": "stated",
+     "source": "masterplan §3.1"
+    },
+    "seismic_design_basis": {
+     "value": "MCE — Life Safety for residential, Immediate Occupancy for lifelines",
+     "status": "stated",
+     "source": "masterplan §2",
+     "note": "framework stated; no magnitude number (region-tuned by design)"
+    },
+    "base_isolation_scope": {
+     "value": "hospital, 7 emergency hubs, civic tower, evacuation towers",
+     "status": "stated",
+     "source": "masterplan §2.1"
+    },
+    "drift_capacity_m": {
+     "value": null,
+     "status": "missing"
+    },
+    "soft_storey_ban": {
+     "value": null,
+     "status": "missing",
+     "note": "strong-column/weak-beam stated; explicit soft-storey prohibition not stated (seaward pilotis blocks are deliberately open-ground)"
+    },
+    "quake_survival_target_pct": {
+     "value": null,
+     "status": "missing"
+    },
+    "tsunami_design_height_m": {
+     "value": null,
+     "status": "missing",
+     "note": "layered defence + FEMA P-646 refuges stated; design wave height region-tuned, never numbered"
+    },
+    "flood_defence_layers": {
+     "value": "forested berm + mangroves/dunes; core on raised terp; sacrificial flow-through pilotis on seaward blocks; vertical refuges within 5-min walk",
+     "status": "stated",
+     "source": "masterplan §2.2"
+    },
+    "site_elevation_model": {
+     "value": "partial — 'urban core sits on raised ground (engineered terp)'; no heights given",
+     "status": "stated",
+     "source": "masterplan §2.2"
+    },
+    "stormwater_drainage": {
+     "value": "looped utilidor network with sectionalising valves (water); stormwater not separately specified",
+     "status": "stated",
+     "source": "masterplan §2.4"
+    },
+    "wind_design": {
+     "value": "typhoon/hurricane package: aerodynamic massing, continuous load path (Miami-Dade), impact glazing, buried utilities",
+     "status": "stated",
+     "source": "masterplan §2.3",
+     "note": "no design wind speed number"
+    },
+    "fire_stations": {
+     "value": 7,
+     "status": "stated",
+     "source": "masterplan §5",
+     "note": "integrated fire+EMS+police hubs: 1 civic core + 1 per district; plus AEDs within 200 m and drone defibrillators"
+    },
+    "fire_response_median_min": {
+     "value": 3.71,
+     "unit": "min",
+     "status": "stated",
+     "source": "masterplan §5",
+     "definition": "END-TO-END call-to-on-scene (75 s dispatch + 70 s turnout + travel at 45 km/h, 1.35x detour, 200k Monte-Carlo incidents)"
+    },
+    "fire_response_p95_min": {
+     "value": 4.32,
+     "unit": "min",
+     "status": "stated",
+     "source": "masterplan §5",
+     "definition": "end-to-end p95; p90 4.22; worst case 4.83; travel-only p90 108 s vs NFPA 240 s"
+    },
+    "ems_response_median_min": {
+     "value": 3.71,
+     "unit": "min",
+     "status": "stated",
+     "source": "masterplan §5 — same integrated hubs",
+     "definition": "end-to-end"
+    },
+    "ems_ambulances": {
+     "value": null,
+     "status": "missing",
+     "note": "hubs co-locate EMS; vehicle counts not given"
+    },
+    "police_response_target_min": {
+     "value": 3.71,
+     "unit": "min (same hubs)",
+     "status": "derived",
+     "source": "police response pods co-located in the 7 hubs",
+     "definition": "end-to-end median, shared infrastructure"
+    },
+    "police_stations": {
+     "value": 7,
+     "status": "derived",
+     "source": "police pods in each integrated hub"
+    },
+    "hospitals": {
+     "value": "1 Level-1 trauma (civic core) + district clinics",
+     "status": "stated",
+     "source": "masterplan §1.4"
+    },
+    "response_degraded_scenario": {
+     "value": null,
+     "status": "missing",
+     "note": "islandable microgrids and looped utilidors stated for lifelines, but no station-loss response-time analysis"
+    },
+    "crime_target": {
+     "value": 1,
+     "unit": "homicides per 100k/yr",
+     "metric": "homicide",
+     "status": "stated",
+     "source": "masterplan §6",
+     "note": "'below ~1/100k' + overall crime at low end of OECD (qualitative)"
+    },
+    "prison_target": {
+     "value": null,
+     "status": "missing",
+     "note": "incarceration 'last resort'; no rate target"
+    },
+    "economic_model": {
+     "value": "Stakeholder market on a universal foundation",
+     "status": "stated",
+     "source": "masterplan §7",
+     "mechanisms": [
+      "all land publicly owned, leaseholds",
+      "land value tax primary",
+      "Universal Basic Services",
+      "job guarantee",
+      "worker co-ops get preferential leaseholds",
+      "public natural monopolies"
+     ]
+    },
+    "gini_target": {
+     "value": null,
+     "status": "missing",
+     "note": "'compresses inequality by construction' — no number"
+    },
+    "energy_demand_avg_mw": {
+     "value": 266,
+     "unit": "MW",
+     "status": "stated",
+     "source": "masterplan §3"
+    },
+    "energy_demand_peak_mw": {
+     "value": 532,
+     "unit": "MW",
+     "status": "stated",
+     "source": "masterplan §3"
+    },
+    "energy_mix": {
+     "value": "solar PV + wind (dual-use farmland) + geothermal/biogas firm; 1.7x overbuild for seasonal storage via green H2",
+     "status": "stated",
+     "source": "masterplan §3.2",
+     "note": "no percentage split stated — region-tuned"
+    },
+    "battery_storage_gwh": {
+     "value": null,
+     "status": "missing",
+     "note": "batteries + pumped hydro + H2 + biogas named; capacities not"
+    },
+    "energy_autonomy_days": {
+     "value": null,
+     "status": "missing"
+    },
+    "water_demand": {
+     "value": 33700,
+     "unit": "m3/day",
+     "status": "derived",
+     "source": "12.3 Mm3/yr / 365 (135 L/person/day stated)",
+     "note": "85% closed-loop reuse; fresh make-up only 1.85 Mm3/yr"
+    },
+    "water_sources": {
+     "value": {
+      "recycling": 85,
+      "rain_and_aquifer": 15
+     },
+     "unit": "% approx",
+     "status": "derived",
+     "source": "85% reclaimed stated; make-up from 5.8 km2 rain catchment"
+    },
+    "water_reserve_days": {
+     "value": null,
+     "status": "missing"
+    },
+    "food_self_sufficiency": {
+     "value": "full calories from 217 km2 regenerative farmland (2,500 kcal +30% loss); CEA for perishables only (479 GWh/yr)",
+     "status": "stated",
+     "source": "masterplan §3.1"
+    },
+    "food_reserve_months": {
+     "value": null,
+     "status": "missing",
+     "note": "'strategic stockpiles' named for high-tech inputs; food reserve duration not stated"
+    },
+    "housing_floor_m2_per_person": {
+     "value": 28,
+     "unit": "m2",
+     "status": "stated",
+     "source": "masterplan §4"
+    },
+    "noise_limit_db": {
+     "value": "<=55 dB day outdoors / <=30 dB indoors night",
+     "status": "stated",
+     "source": "masterplan §4"
+    },
+    "commute_target": {
+     "value": "15-minute walk for daily life; any cross-city trip <=15 min",
+     "status": "stated",
+     "source": "masterplan §4"
+    },
+    "local_reserve_hours": {
+     "value": null,
+     "status": "missing",
+     "note": "islandable district microgrids stated for power; water/food local reserve duration not stated"
+    }
+   },
+   "sim_capabilities": {
+    "fire": {
+     "supported": true,
+     "confidence": "medium",
+     "notes": "Materials and full end-to-end response distribution stated; street widths and block spacing missing — spread uses density + canopy only."
+    },
+    "flood": {
+     "supported": true,
+     "confidence": "low",
+     "notes": "Defence layering is described but has NO numbers (no terp height, no design wave). Simulation is qualitative-tiered; UI flags this."
+    },
+    "quake": {
+     "supported": true,
+     "confidence": "medium",
+     "notes": "Isolation scope and performance framework stated, but no magnitude basis or survival target — damage curves are generic MCE assumptions, flagged."
+    },
+    "population": {
+     "supported": true,
+     "confidence": "high",
+     "notes": "QoL standards quantified; UBS/job guarantee stated."
+    }
+   }
+  },
+  {
+   "id": "meridian-f",
+   "name": "Meridian (Fable)",
+   "model": "Claude Fable",
+   "repo": "claude-code-fable/worldwide-city",
+   "source_files": [
+    "masterplan.md",
+    "iteration_log.md",
+    "response_model.py",
+    "README.md"
+   ],
+   "layout": {
+    "type": "hex-flower",
+    "districts": 7,
+    "district_flat_to_flat_km": 3.0,
+    "district_area_km2": 7.8,
+    "district_pop": 143000,
+    "block_grid_m": 130,
+    "street_width_m": 20,
+    "green_wedges": 6,
+    "note": "one core + six petal districts, tangent; six green wedges between petals"
+   },
+   "figures": {
+    "population": {
+     "value": 1000000,
+     "unit": "people",
+     "status": "stated",
+     "source": "masterplan §1"
+    },
+    "urban_area_km2": {
+     "value": 54.5,
+     "unit": "km2",
+     "status": "stated",
+     "source": "masterplan §1"
+    },
+    "gross_density_per_km2": {
+     "value": 18300,
+     "unit": "people/km2",
+     "status": "stated",
+     "source": "masterplan §1"
+    },
+    "built_up_density_per_km2": {
+     "value": 30000,
+     "unit": "people/km2 net residential (typology figure)",
+     "status": "stated",
+     "source": "masterplan §1 ('the only form that has repeatedly delivered >30,000/km2 net')"
+    },
+    "hinterland_km2": {
+     "value": 1250,
+     "unit": "km2 (~20 km radius)",
+     "status": "stated",
+     "source": "masterplan §1, §3"
+    },
+    "building_storeys_typical": {
+     "value": "6-8 perimeter blocks; 12-20 storey clusters within 400 m of district hubs",
+     "status": "stated",
+     "source": "masterplan §1"
+    },
+    "building_materials": {
+     "value": "engineered mass timber (CLT) or reinforced concrete, strong-column/weak-beam",
+     "status": "stated",
+     "source": "masterplan §2"
+    },
+    "street_width_m": {
+     "value": 20,
+     "unit": "m",
+     "status": "stated",
+     "source": "masterplan §1"
+    },
+    "building_spacing": {
+     "value": "~130 m perimeter-block grid, 20 m streets",
+     "status": "stated",
+     "source": "masterplan §1",
+     "note": "best-specified spread geometry of the four designs"
+    },
+    "gas_grid": {
+     "value": "none — all-electric city, gas omitted to remove post-quake ignition (Kobe lesson)",
+     "status": "stated",
+     "source": "masterplan §2"
+    },
+    "green_cover_pct": {
+     "value": 30,
+     "unit": "% canopy per neighbourhood (3-30-300 rule)",
+     "status": "stated",
+     "source": "masterplan §5"
+    },
+    "firebreaks": {
+     "value": "six green wedges explicitly double as firebreaks, floodways, staging areas",
+     "status": "stated",
+     "source": "masterplan §1"
+    },
+    "seismic_design_basis": {
+     "value": "site MCE, e.g. M8+ subduction or M7 crustal; microzonation <=200 m mandatory before construction",
+     "status": "stated",
+     "source": "masterplan §2"
+    },
+    "base_isolation_scope": {
+     "value": "hospitals, all 33 micro-stations, water/energy control nodes, district civic halls",
+     "status": "stated",
+     "source": "masterplan §2"
+    },
+    "drift_capacity_m": {
+     "value": null,
+     "status": "missing"
+    },
+    "soft_storey_ban": {
+     "value": true,
+     "status": "stated",
+     "source": "masterplan §2 ('banned outright')"
+    },
+    "quake_survival_target_pct": {
+     "value": null,
+     "status": "missing",
+     "note": "no % survival target; instead a functional target — lattice still serves city with 25% of stations destroyed (computed)"
+    },
+    "tsunami_design_height_m": {
+     "value": 15,
+     "unit": "m (berm at +15 m; habitable floors above +15 m; 1-in-1000-yr design basis)",
+     "status": "stated",
+     "source": "masterplan §2 coastal module"
+    },
+    "flood_defence_layers": {
+     "value": "living shoreline; +15 m landscape berm; sacrificial 400 m waterfront band (no ground-floor housing); vertical evacuation within 10-min walk; wedges as floodways",
+     "status": "stated",
+     "source": "masterplan §2"
+    },
+    "site_elevation_model": {
+     "value": "partial — berm +15 m, habitable floors +15 m, wedges as stormwater basins/floodways; no full terrain map",
+     "status": "stated",
+     "source": "masterplan §1, §2"
+    },
+    "stormwater_drainage": {
+     "value": "stormwater basins in green wedges; rooftop catchment mandated (L19)",
+     "status": "stated",
+     "source": "masterplan §1, §7"
+    },
+    "wind_design": {
+     "value": "250 km/h 3-s gust (Saffir-Simpson 5); Miami-Dade envelope; underground grid; TMD on tall buildings",
+     "status": "stated",
+     "source": "masterplan §2 cyclonic module"
+    },
+    "fire_stations": {
+     "value": 33,
+     "status": "stated",
+     "source": "masterplan §4",
+     "note": "micro-stations on ~1.4 km triangular lattice; cross-trained fire/EMS/community-police crews of 6-8; base-isolated, solar+battery islanded"
+    },
+    "fire_response_median_min": {
+     "value": 2.4,
+     "unit": "min",
+     "status": "stated",
+     "source": "masterplan §4 table",
+     "definition": "turnout (75 s) + travel at 36 km/h, BFS on 100 m street grid; mean 2.3"
+    },
+    "fire_response_p95_min": {
+     "value": 2.8,
+     "unit": "min (p90; max 3.9)",
+     "status": "stated",
+     "source": "masterplan §4 table",
+     "definition": "p90 reported, not p95"
+    },
+    "ems_response_median_min": {
+     "value": 2.4,
+     "unit": "min",
+     "status": "stated",
+     "source": "same 33 integrated stations; hospital transport median 3.2 min (4 hospitals)"
+    },
+    "ems_ambulances": {
+     "value": 33,
+     "status": "stated",
+     "source": "masterplan §4 — one ambulance per micro-station"
+    },
+    "police_response_target_min": {
+     "value": 2.4,
+     "unit": "min (community police in same stations)",
+     "status": "derived",
+     "source": "cross-trained crews include community policing; armed tier per district"
+    },
+    "police_stations": {
+     "value": 33,
+     "status": "derived",
+     "source": "kōban-model officers embedded in the 33 micro-stations"
+    },
+    "hospitals": {
+     "value": "4 (core + 3 alternating petals); p99 transport <=10 min; N+1 paired capacity",
+     "status": "stated",
+     "source": "masterplan §4"
+    },
+    "response_degraded_scenario": {
+     "value": "25% of stations destroyed: mean 2.6 / p90 3.6 / max 4.9 min — still beats intact 7-station design (computed)",
+     "status": "stated",
+     "source": "masterplan §4 table"
+    },
+    "crime_target": {
+     "value": 0.5,
+     "unit": "homicides per 100k/yr",
+     "metric": "homicide",
+     "status": "stated",
+     "source": "masterplan §8",
+     "note": "plus overall victimisation <50% of host-nation baseline"
+    },
+    "prison_target": {
+     "value": null,
+     "status": "missing",
+     "note": "custody 'reserved for danger'; Norway ~20% recidivism benchmark; no rate number"
+    },
+    "economic_model": {
+     "value": "Market Georgism with a universal floor",
+     "status": "stated",
+     "source": "masterplan §6",
+     "mechanisms": [
+      "City Land Trust holds all land; 49-yr auctioned leaseholds, 5-yr rent reassessment",
+      "land rent is primary revenue — no city income or sales tax",
+      "Universal Basics funded by land rent",
+      "Job Guarantee as buffer stock",
+      "38% non-market housing, income-mix quotas per block",
+      "utilities at cost"
+     ]
+    },
+    "gini_target": {
+     "value": null,
+     "status": "missing",
+     "note": "'inequality compression' is lever #1 but no Gini number"
+    },
+    "energy_demand_avg_mw": {
+     "value": 630,
+     "unit": "MW",
+     "status": "stated",
+     "source": "masterplan §3 (5.5 MWh/person/yr)"
+    },
+    "energy_demand_peak_mw": {
+     "value": 1500,
+     "unit": "MW",
+     "status": "stated",
+     "source": "masterplan §3"
+    },
+    "energy_mix": {
+     "value": "rooftop PV ~1 GWp + 25 km2 hinterland agrivoltaics + wind where available + firm block (geothermal, 2 SMRs, or biomass CHP)",
+     "status": "stated",
+     "source": "masterplan §3",
+     "note": "no % split — firm block sized by geography"
+    },
+    "battery_storage_gwh": {
+     "value": 4,
+     "unit": "GWh + seasonal sand/water thermal pits",
+     "status": "stated",
+     "source": "masterplan §3"
+    },
+    "energy_autonomy_days": {
+     "value": null,
+     "status": "missing",
+     "note": "72 h islanding per district for critical loads stated; whole-city autonomy days not"
+    },
+    "water_demand": {
+     "value": 128767,
+     "unit": "m3/day municipal",
+     "status": "derived",
+     "source": "47 Mm3/yr / 365 (130 L/person/day stated); irrigation ~10x municipal in a dry year"
+    },
+    "water_sources": {
+     "value": "rooftop catchment (mandated) + wedge reservoirs + 40% potable reuse; desal only for coastal-arid instances",
+     "status": "stated",
+     "source": "masterplan §3",
+     "note": "no full % split of the stack"
+    },
+    "water_reserve_days": {
+     "value": 3,
+     "unit": "days (72 h per district, L14)",
+     "status": "stated",
+     "source": "masterplan §7"
+    },
+    "food_self_sufficiency": {
+     "value": "98% of calories from ~1,000 km2 hinterland (plant-forward, 800-1,000 m2/person); vertical farms ~2% of calories (200 ha)",
+     "status": "stated",
+     "source": "masterplan §3"
+    },
+    "food_reserve_months": {
+     "value": 18,
+     "unit": "months staple grain per district",
+     "status": "stated",
+     "source": "masterplan §3, L5"
+    },
+    "housing_floor_m2_per_person": {
+     "value": 35,
+     "unit": "m2 net + >=2 rooms/household + 2 h direct sun",
+     "status": "stated",
+     "source": "masterplan §5"
+    },
+    "noise_limit_db": {
+     "value": "<=55 dB(A) day / 45 night at every facade; quiet side mandatory",
+     "status": "stated",
+     "source": "masterplan §5"
+    },
+    "commute_target": {
+     "value": "median <=22 min door-to-door, p90 <=35 min; 90% within 15-min walk of daily needs",
+     "status": "stated",
+     "source": "masterplan §5"
+    },
+    "local_reserve_hours": {
+     "value": 72,
+     "unit": "hours water per district + 7 d food distribution capacity (L14)",
+     "status": "stated",
+     "source": "masterplan §7"
+    }
+   },
+   "sim_capabilities": {
+    "fire": {
+     "supported": true,
+     "confidence": "high",
+     "notes": "Best-specified of the four: materials, 130 m block grid, 20 m streets, no gas grid, wedge firebreaks, full response distribution incl. station-loss case."
+    },
+    "flood": {
+     "supported": true,
+     "confidence": "high",
+     "notes": "+15 m berm, sacrificial 400 m band, wedge floodways all quantified; 1-in-1000-yr basis. Terrain beyond these features still unmapped."
+    },
+    "quake": {
+     "supported": true,
+     "confidence": "high",
+     "notes": "The repo computes its own 25%-station-loss case; isolation scope, soft-storey ban and microzonation stated."
+    },
+    "population": {
+     "supported": true,
+     "confidence": "high",
+     "notes": "Charter floors quantified and audited (wellbeing survey, churn triggers) — richest basis for agent needs."
+    }
+   }
+  },
+  {
+   "id": "resilient-city",
+   "name": "Resilient City (ChatGPT)",
+   "model": "ChatGPT",
+   "repo": "chat-gpt-code/resilient-city",
+   "author_note": "Produced by ChatGPT (added later at the user's request), not one of the original four Claude-model designs. Normalised on the same terms.",
+   "source_files": [
+    "masterplan.md",
+    "iteration_log.md",
+    "index.html"
+   ],
+   "layout": {
+    "type": "square-grid",
+    "urban_km": 10,
+    "grid": "5x5",
+    "districts": 25,
+    "district_km": 2,
+    "district_pop": 40000,
+    "hospitals": 5,
+    "note": "5×5 array of 2×2 km mixed-use districts; one combined fire/medical/rescue station + one water/refuge tower per district; 5 hospitals (centre + 4 quadrant centres)"
+   },
+   "figures": {
+    "population": {
+     "value": 1000000,
+     "unit": "people",
+     "status": "stated",
+     "source": "masterplan §1"
+    },
+    "urban_area_km2": {
+     "value": 100,
+     "unit": "km2",
+     "status": "stated",
+     "source": "masterplan §1 (10×10 km)"
+    },
+    "gross_density_per_km2": {
+     "value": 10000,
+     "unit": "people/km2",
+     "status": "stated",
+     "source": "masterplan §2.3"
+    },
+    "built_up_density_per_km2": {
+     "value": "20000-35000",
+     "unit": "people/km2 (inhabited mixed-use portions)",
+     "status": "stated",
+     "source": "masterplan §2.3"
+    },
+    "hinterland_km2": {
+     "value": 4000,
+     "unit": "km2 (reference; range 3,500-4,500)",
+     "status": "stated",
+     "source": "masterplan §1, §4.2"
+    },
+    "building_storeys_typical": {
+     "value": "6-18 storeys; taller towers exceptional",
+     "status": "stated",
+     "source": "masterplan §2.3"
+    },
+    "building_materials": {
+     "value": "ductile reinforced concrete, steel or engineered timber; low-clinker cement, reclaimed aggregate, electric-furnace recycled metal",
+     "status": "stated",
+     "source": "masterplan §3.2, §4.5"
+    },
+    "street_width_m": {
+     "value": null,
+     "status": "missing",
+     "note": "superblocks + redundant street grid described; no street cross-section dimension stated"
+    },
+    "building_spacing": {
+     "value": null,
+     "status": "missing",
+     "note": "2×2 km districts with superblocks and a redundant utility/transit street grid stated, but no block-grid dimension — fire-spread geometry approximated"
+    },
+    "gas_grid": {
+     "value": "mostly electrified (transport/heating/industry); automatic gas & hazardous-process isolation — gas not fully eliminated",
+     "status": "stated",
+     "source": "masterplan §1, §3.2",
+     "note": "unlike Meridian-F's outright gas ban, gas is present but auto-isolated — some post-quake ignition risk retained"
+    },
+    "green_cover_pct": {
+     "value": null,
+     "status": "missing",
+     "note": "green access set as ratios (>=30 m2/resident across scales, >=10 m2 within the urban boundary, park within 300 m) but no city-wide canopy % figure"
+    },
+    "firebreaks": {
+     "value": "green corridors double as firebreaks (planted to avoid continuous dry-fuel paths); district-boundary green strips",
+     "status": "stated",
+     "source": "masterplan §3.5"
+    },
+    "seismic_design_basis": {
+     "value": "site-specific performance-based: Immediate Occupancy (frequent), Repairable (design-basis), No Collapse (MCE), No Progressive Collapse (beyond-design)",
+     "status": "stated",
+     "source": "masterplan §3.2",
+     "note": "framework stated but NO magnitude number (region-tuned) — sim assumes generic M8.0 MCE, flagged"
+    },
+    "base_isolation_scope": {
+     "value": "hospitals, control centres, water plants, refuge buildings, and selected residential/civic buildings",
+     "status": "stated",
+     "source": "masterplan §3.2"
+    },
+    "soft_storey_ban": {
+     "value": null,
+     "status": "missing",
+     "note": "capacity design + strong-column/weak-beam stated, but no explicit soft-storey prohibition (contrast Meridian-F/S which ban it outright)"
+    },
+    "drift_capacity_m": {
+     "value": null,
+     "status": "missing"
+    },
+    "quake_survival_target_pct": {
+     "value": null,
+     "status": "missing",
+     "note": "qualitative 'no collapse at MCE / no progressive collapse beyond design'; no % survival figure"
+    },
+    "tsunami_design_height_m": {
+     "value": null,
+     "status": "missing",
+     "note": "defence is avoidance (build landward of the site-specific extreme inundation line); the inundation height itself is never numbered"
+    },
+    "flood_defence_layers": {
+     "value": "avoidance-first: uninhabited wetland/dune/floodable-park belt; development landward of extreme inundation line; raised redundant high-ground route; vertical-evacuation structures; breakaway ground-floor walls on edge structures; scour-designed deep foundations; independent-power drainage pumps; local detection",
+     "status": "stated",
+     "source": "masterplan §3.3"
+    },
+    "site_elevation_model": {
+     "value": "partial — critical facilities on strongest ground above credible flood levels; raised high-ground evacuation route; no terrain map",
+     "status": "stated",
+     "source": "masterplan §3.1, §3.3"
+    },
+    "stormwater_drainage": {
+     "value": "dedicated third network for stormwater & flood conveyance; gravity drainage + independent-power pumps; looped water network with district cisterns",
+     "status": "stated",
+     "source": "masterplan §3.5, §4.3"
+    },
+    "wind_design": {
+     "value": "greater of local code event or site-specific study; continuous load path, impact-rated glazing, hip roofs, refuge rooms; higher importance factor for critical buildings",
+     "status": "stated",
+     "source": "masterplan §3.4",
+     "note": "no single design wind speed number"
+    },
+    "fire_stations": {
+     "value": 25,
+     "status": "stated",
+     "source": "masterplan §2.1, §6.1",
+     "note": "one combined fire/medical/rescue station at every 2×2 km district centre"
+    },
+    "fire_response_median_min": {
+     "value": 3.96,
+     "unit": "min",
+     "status": "stated",
+     "source": "masterplan §6.2",
+     "definition": "computed indicative fire arrival: 60 s dispatch + 75 s turnout + expected 1 km Manhattan at 35 km/h; ambulance equivalent 3.46 min"
+    },
+    "fire_response_p95_min": {
+     "value": "7.05 min worst-corner (degraded 25 km/h roads); target 90% <5 min",
+     "status": "stated",
+     "source": "masterplan §6.2, §6.3",
+     "note": "explicit p95 not printed; the repo's script computes percentiles but the doc reports mean + worst-corner"
+    },
+    "ems_response_median_min": {
+     "value": 3.46,
+     "unit": "min",
+     "status": "stated",
+     "source": "masterplan §6.2",
+     "definition": "computed: 45 s dispatch + 60 s turnout + 1 km at 35 km/h"
+    },
+    "ems_ambulances": {
+     "value": null,
+     "status": "missing",
+     "note": "combined stations described; ambulance/vehicle counts not given"
+    },
+    "police_response_target_min": {
+     "value": null,
+     "status": "missing",
+     "note": "policing reoriented to harm reduction; no police response-time target and no separate police stations (folded into the 25 district stations)"
+    },
+    "police_stations": {
+     "value": "combined into the 25 district stations (no separate police stations)",
+     "status": "stated",
+     "source": "masterplan §6.1, §7"
+    },
+    "hospitals": {
+     "value": "5 (city centre + 4 quadrant centres) + local stabilisation clinics",
+     "status": "stated",
+     "source": "masterplan §2.1, §6.1"
+    },
+    "response_degraded_scenario": {
+     "value": "degraded-road (25 km/h) worst-corner 7.05 min; no emergency facility dependent on one bridge/pipe/substation/data link; >=2 physically separate routes into every district",
+     "status": "stated",
+     "source": "masterplan §6.2, §6.3"
+    },
+    "crime_target": {
+     "value": 2,
+     "unit": "homicides per 100k/yr",
+     "metric": "homicide",
+     "status": "stated",
+     "source": "masterplan §7.1",
+     "note": "multi-metric target: also serious violent victimisation <10/1,000/yr and residential burglary <5/1,000 households/yr"
+    },
+    "prison_target": {
+     "value": null,
+     "status": "missing",
+     "note": "prisons 'reserved primarily for continuing serious risk'; no incarceration-rate number"
+    },
+    "economic_model": {
+     "value": "Constitutional social-market and commons economy",
+     "status": "stated",
+     "source": "masterplan §8",
+     "mechanisms": [
+      "three domains: universal provision, regulated markets, ecological allocation (annual public resource budgets + tradable permits above an allowance)",
+      "public land trust with inheritable/mortgageable leases",
+      ">=40% permanently non-market public/cooperative housing",
+      "standing job guarantee",
+      "32-hour full-time standard",
+      "land-value charges + progressive tax fund universal provision"
+     ]
+    },
+    "gini_target": {
+     "value": null,
+     "status": "missing",
+     "note": "contentment thresholds set (>=80% life satisfaction, no quintile gap) but no Gini figure"
+    },
+    "energy_demand_avg_mw": {
+     "value": 913,
+     "unit": "MW",
+     "status": "derived",
+     "source": "8 TWh/yr demand / 8,760 h",
+     "note": "generation sized to ~12 TWh/yr (~1.37 GW avg) for storage losses/reserve"
+    },
+    "energy_demand_peak_mw": {
+     "value": null,
+     "status": "missing",
+     "note": "no peak load stated; the 2.5 GW figure is an emergency-demand / firm-capability target, not a peak load"
+    },
+    "energy_mix": {
+     "value": "locally selected portfolio: solar, wind, geothermal, hydro, waste biogas, biomass backup, nuclear only if the no-import rule is genuinely met; >=2.5 GW firm; no single plant >15% of firm capacity",
+     "status": "stated",
+     "source": "masterplan §4.4",
+     "note": "no percentage split — region-tuned"
+    },
+    "battery_storage_gwh": {
+     "value": null,
+     "status": "missing",
+     "note": "explicitly declines a single battery figure: a 72 h / 180 GWh reserve is stated to be 'too large as lithium batteries alone', met instead by batteries + thermal + water + dispatchable generation + hydrogen"
+    },
+    "energy_autonomy_days": {
+     "value": 3,
+     "unit": "days",
+     "status": "stated",
+     "source": "masterplan §3.5, §4.4",
+     "note": "72 h electrical reserve target + 72 h passive building survivability"
+    },
+    "water_demand": {
+     "value": 150000,
+     "unit": "m3/day domestic",
+     "status": "stated",
+     "source": "masterplan §4.3",
+     "note": "treatment capacity >=200,000 m3/day; industry & agriculture on separate budgets"
+    },
+    "water_sources": {
+     "value": "protected upland catchments, sustainable-yield groundwater, rainwater, reclaimed wastewater, coastal desalination (fallback), seasonal reservoirs & managed aquifer recharge",
+     "status": "stated",
+     "source": "masterplan §4.3",
+     "note": "no percentage split; three-network potable/reclaimed/stormwater system"
+    },
+    "water_reserve_days": {
+     "value": 180,
+     "unit": "days (regional; district storage >=7 days)",
+     "status": "stated",
+     "source": "masterplan §4.3"
+    },
+    "food_self_sufficiency": {
+     "value": "sized to 110% of caloric need (963.6 Tcal/yr for 1M @ 2,400 kcal/day); plant-forward; 4,000 km² hinterland; urban farms for perishables only (not staple calories)",
+     "status": "stated",
+     "source": "masterplan §4.2"
+    },
+    "food_reserve_months": {
+     "value": 12,
+     "unit": "months staple calories (strategic reserve)",
+     "status": "stated",
+     "source": "masterplan §4.2"
+    },
+    "housing_floor_m2_per_person": {
+     "value": 35,
+     "unit": "m2 (35 one adult, 50 two adults, +12 per extra resident)",
+     "status": "stated",
+     "source": "masterplan §5.1"
+    },
+    "noise_limit_db": {
+     "value": "<=30 dBA bedroom at night; <=45 dBA exterior residential night where feasible",
+     "status": "stated",
+     "source": "masterplan §5.1, §5.3"
+    },
+    "commute_target": {
+     "value": "median <15 min; p90 <25 min; daily-needs trip <10 min for 90%; 100% of homes within 400 m of daily needs or transit",
+     "status": "stated",
+     "source": "masterplan §2.2, §5.3"
+    },
+    "local_reserve_hours": {
+     "value": 168,
+     "unit": "hours (7 days district potable water; + 72 h passive survivability)",
+     "status": "stated",
+     "source": "masterplan §4.3, §3.5"
+    }
+   },
+   "sim_capabilities": {
+    "fire": {
+     "supported": true,
+     "confidence": "medium",
+     "notes": "Materials, 25-station computed response, looped water + district cisterns and green firebreak corridors stated, and fire-following-earthquake is explicitly addressed. Street widths / block grid are NOT dimensioned, so intra-district spread is approximated from density."
+    },
+    "flood": {
+     "supported": true,
+     "confidence": "medium",
+     "notes": "Strategy is avoidance (build landward of the inundation line) + a wetland/floodable-park belt + a 3rd stormwater network — well described, but the design inundation height is never numbered, so the surge threshold is an assumption (flagged). The waterfront belt is deliberately sacrificial, not a wall."
+    },
+    "quake": {
+     "supported": true,
+     "confidence": "medium",
+     "notes": "Performance framework + base-isolation scope + capacity design stated, but no magnitude basis (generic M8.0 assumed), no explicit soft-storey ban, and no % survival target. Gas is auto-isolated but not eliminated, so some post-quake ignition risk remains."
+    },
+    "population": {
+     "supported": true,
+     "confidence": "high",
+     "notes": "Among the most quantified: 35 m² housing floor, noise/green/commute floors, and explicit contentment SLOs (>=80% life satisfaction, no district >10 pts below average) plus job guarantee, UBS and per-district mental health."
+    }
+   }
+  },
+  {
+   "id": "hearth",
+   "name": "HEARTH",
+   "model": "Claude Opus 5",
+   "repo": "claude-code-opus",
+   "repo_note": "This repo NAME previously held CIVITAS (Opus 4.8), which now lives at claude-code-opus-4.8. Same author account; the name was handed to the newer design.",
+   "source_files": [
+    "masterplan.md",
+    "iteration_log.md",
+    "models/response_time_model.py",
+    "models/sufficiency_model.py",
+    "models/amenity_access_model.py",
+    "models/outputs/response_times.json",
+    "models/outputs/sufficiency.json",
+    "models/outputs/liveability.json"
+   ],
+   "layout": {
+    "type": "single-hex-wards",
+    "hex_circumradius_m": 2630,
+    "across_km": 5.26,
+    "districts": 6,
+    "wards": 60,
+    "ward_pop": 4170,
+    "block_lattice_m": 100,
+    "street_classes": {
+     "lane": {
+      "spacing_m": 100,
+      "width_m": 12
+     },
+     "collector": {
+      "spacing_m": 400,
+      "width_m": 22
+     },
+     "avenue": {
+      "spacing_m": 800,
+      "width_m": 34
+     }
+    },
+    "land_budget_pct": {
+     "street_and_square": 25,
+     "park_and_green": 22,
+     "water": 3,
+     "building_plot": 50,
+     "parking": 0
+    },
+    "note": "Same outer hexagon as CIVITAS (2,630 m circumradius, 250k people) but a different interior: 6 districts x 10 wards = 60 ward hubs, each with creche/GP/grocery/tool library/cache/duty responder within a 5-min walk. Station coordinates in the sim are the actual p-median output from models/outputs/response_times.json."
+   },
+   "figures": {
+    "population": {
+     "value": 250000,
+     "unit": "people",
+     "status": "stated",
+     "source": "masterplan §1"
+    },
+    "urban_area_km2": {
+     "value": 17.97,
+     "unit": "km2",
+     "status": "stated",
+     "source": "masterplan §1 (hexagon 5.26 km across)"
+    },
+    "gross_density_per_km2": {
+     "value": 13912,
+     "unit": "people/km2",
+     "status": "stated",
+     "source": "masterplan §1 (computed by models/city_geometry.py)"
+    },
+    "built_up_density_per_km2": {
+     "value": 27809,
+     "unit": "people/km2 on building plots",
+     "status": "derived",
+     "source": "250,000 / 8.99 km2 building plots (50% of 17.97 km2, stated in §2.3)",
+     "note": "plot floor area ratio 1.61 at 36% site coverage, mean 4.5 storeys (all stated)"
+    },
+    "hinterland_km2": {
+     "value": 957,
+     "unit": "km2",
+     "status": "derived",
+     "source": "975 km2 stated territory minus 17.97 km2 urban core",
+     "note": "territory breakdown stated: 306 cropland/pasture + 417 productive forest + 171 ecology reserve + 55 fibre + 8 infrastructure; 0.39 ha/person, 1.8% built, 30.4% protected"
+    },
+    "building_storeys_typical": {
+     "value": "5-8 storeys (mean 4.5 city-wide)",
+     "status": "stated",
+     "source": "masterplan §1, §4.4",
+     "note": "towers explicitly rejected: mass timber practical to ~8 storeys, lifts fail in the design events, evacuation harder above 8"
+    },
+    "building_materials": {
+     "value": "cross-laminated timber and glulam with post-tensioned self-centring rocking shear walls (Pres-Lam); replaceable mild-steel dissipaters; encapsulated with calculated charring depth",
+     "status": "stated",
+     "source": "masterplan §3.2, §3.5"
+    },
+    "street_width_m": {
+     "value": "12 m lanes (100 m spacing) / 22 m collectors (400 m) / 34 m avenues (800 m)",
+     "status": "stated",
+     "source": "masterplan §2.3",
+     "note": "most fully dimensioned street hierarchy of the six designs"
+    },
+    "building_spacing": {
+     "value": "100 m block lattice, perimeter form with shared courtyard; 36% site coverage; minimum interior node degree 4",
+     "status": "stated",
+     "source": "masterplan §2.3"
+    },
+    "gas_grid": {
+     "value": "none reticulated — heat is 72% solar thermal with seasonal storage ('the heat is not combustion'); biomass CHP exists only as central dispatchable plant",
+     "status": "stated",
+     "source": "masterplan §5.4",
+     "note": "no domestic gas, so no in-building post-quake ignition source; the city is timber, so fire risk is handled by encapsulation, sprinklers and 12 m lanes instead"
+    },
+    "green_cover_pct": {
+     "value": 22,
+     "unit": "% of land as park and green (+30% tree canopy mandated per ward, Art. 22)",
+     "status": "stated",
+     "source": "masterplan §2.3, §4.1"
+    },
+    "firebreaks": {
+     "value": "12 m minimum lane width as fire break (explicit); 200 m wildland-urban interface buffer in grazed short vegetation; sprinklers throughout; non-combustible facades; combustible cavity insulation prohibited",
+     "status": "stated",
+     "source": "masterplan §3.5"
+    },
+    "seismic_design_basis": {
+     "value": "2,475-year event (MCE) with performance objectives: Immediate Occupancy for critical class (functional within 4 h), Repairable for housing (<=0.5% residual drift, re-occupiable in 30 days), Operational at the 475-year event",
+     "status": "stated",
+     "source": "masterplan §3.1",
+     "note": "a RETURN PERIOD, not a magnitude — no Mw figure anywhere, so the simulator falls back to a generic M8.0 MCE and flags it"
+    },
+    "base_isolation_scope": {
+     "value": "acute hospital, 6 district health centres, emergency operations centre, all 7 stations, water plants (lead-rubber or friction pendulum, isolated period 3.0-3.5 s)",
+     "status": "stated",
+     "source": "masterplan §3.2"
+    },
+    "soft_storey_ban": {
+     "value": null,
+     "status": "missing",
+     "note": "capacity design, rocking walls and non-structural restraint are specified in detail, but no explicit soft-storey prohibition appears (contrast Meridian-F/S, which ban it outright)"
+    },
+    "drift_capacity_m": {
+     "value": "<=0.5% residual drift (housing, at the 2,475-yr event)",
+     "status": "stated",
+     "source": "masterplan §3.1",
+     "note": "expressed as a residual drift RATIO, not the absolute lateral displacement Solaris gives (1.5 m) — not directly comparable"
+    },
+    "quake_survival_target_pct": {
+     "value": null,
+     "status": "missing",
+     "note": "no % survival figure; the target is functional instead ('repairable, re-occupiable in 30 days'), which the repo argues is the more demanding objective"
+    },
+    "tsunami_design_height_m": {
+     "value": 12,
+     "unit": "m engineered berm (+1.5 km coastal forest belt behind it)",
+     "status": "stated",
+     "source": "masterplan §3.3",
+     "note": "berm height is stated; the design INUNDATION height itself is not numbered — it is specified relationally as 'inundation + 3 m freeboard' (Art. 26)"
+    },
+    "flood_defence_layers": {
+     "value": "core founded above design inundation (terrace raised where topography fails, Rikuzentakata precedent); 12 m engineered berm carrying the structural duty; 1.5 km coastal forest for sediment/scour/amenity only (explicitly NOT trusted as barrier after 2011); 71 vertical-evacuation refuges at 500 m spacing checked for buoyancy, scour, debris impact and overturning per ASCE 7 ch.6 / FEMA P-646",
+     "status": "stated",
+     "source": "masterplan §3.3"
+    },
+    "site_elevation_model": {
+     "value": "partial — core above design inundation, coastal terrace raised (>10 m scale stated), Class F soils excluded from the urban core; no terrain map",
+     "status": "stated",
+     "source": "masterplan §3.2, §3.3"
+    },
+    "stormwater_drainage": {
+     "value": "daylighted swales within the 22% green allocation, sized for the projected 2150 1-in-200-year rainfall; park network doubles as designed flood storage ('Room for the River' logic)",
+     "status": "stated",
+     "source": "masterplan §3.5",
+     "note": "only design of the six to state a dated future-climate rainfall design standard"
+    },
+    "wind_design": {
+     "value": "roofing mechanically fixed to the 1,700-year gust; aerodynamic shaping (chamfered/stepped corners); impact-rated glazing or shutters in cyclone regions; continuous load path with tension ties; PV rated to Risk Category IV uplift with trackers stowing, and a 72-hour stow carried by dispatchable backstop",
+     "status": "stated",
+     "source": "masterplan §3.4"
+    },
+    "fire_stations": {
+     "value": 7,
+     "status": "stated",
+     "source": "masterplan §7.1",
+     "note": "6 district + 1 civic, sited by greedy p-median over 625 candidate avenue intersections; PLUS 60 ward posts with a duty first responder on an e-bike and a pre-positioned cache"
+    },
+    "fire_response_median_min": {
+     "value": 3.49,
+     "unit": "min",
+     "status": "derived",
+     "source": "stated dispatch 64 s + turnout 80 s + stated engine travel p50 65.4 s = 209.4 s",
+     "definition": "end-to-end call-to-on-scene median; the repo reports p90 (4:02) and travel percentiles rather than a total median"
+    },
+    "fire_response_p95_min": {
+     "value": 4.03,
+     "unit": "min (p90 total; travel p99 2:04; full alarm assignment p90 6:19)",
+     "status": "stated",
+     "source": "masterplan §7.2",
+     "definition": "end-to-end p90 (dispatch+turnout+travel) against NFPA 1710's 4:00 travel benchmark, which its travel p90 of 1:38 clears by a wide margin"
+    },
+    "ems_response_median_min": {
+     "value": 3.16,
+     "unit": "min",
+     "status": "derived",
+     "source": "stated ALS total p90 222.1 s minus travel p90 98.1 s = 124 s fixed, + stated travel p50 65.4 s",
+     "definition": "ALS ambulance end-to-end median; separately, ward-responder collapse-to-defibrillation is a STATED p50 2:28 / p90 2:54"
+    },
+    "ems_ambulances": {
+     "value": null,
+     "status": "missing",
+     "note": "7 stations and 60 e-bike ward posts are specified, but no ambulance vehicle count"
+    },
+    "police_response_target_min": {
+     "value": null,
+     "status": "missing",
+     "note": "no police response-time target; police are unarmed by default and mental-health/welfare/intoxication calls are routed to unarmed health teams instead (CAHOOTS precedent)"
+    },
+    "police_stations": {
+     "value": null,
+     "status": "missing",
+     "note": "the 7 stations are fire/EMS; police facilities are never enumerated"
+    },
+    "hospitals": {
+     "value": "1 acute hospital (base-isolated) + 6 district health centres; health centre reachable by bike p90 3.4 min",
+     "status": "stated",
+     "source": "masterplan §2.2, §4.1"
+    },
+    "response_degraded_scenario": {
+     "value": "300 Monte-Carlo trials of the design earthquake with 2 of 7 stations lost and debris blockage by street class (lanes 12%, collectors 5%, avenues 2%): engine travel p90 2:16 (worst decile 2:50), mean 136 people with no vehicle route (worst trial 983), foot response from ward cache p90 5:32, unreachable even on foot 0.05%",
+     "status": "stated",
+     "source": "masterplan §7.4",
+     "note": "most rigorous degraded-case analysis of the six; also runs a speed sensitivity (still clears benchmark at 60% of assumed speeds)"
+    },
+    "crime_target": {
+     "value": 0.5,
+     "unit": "homicides per 100k/yr (plus <=1,200 recorded offences per 100k/yr, rolling decade)",
+     "metric": "homicide",
+     "status": "stated",
+     "source": "masterplan §8.1"
+    },
+    "prison_target": {
+     "value": null,
+     "status": "missing",
+     "note": "no incarceration-rate target stated"
+    },
+    "economic_model": {
+     "value": "Plan the substrate, market the superstructure — three layers",
+     "status": "stated",
+     "source": "masterplan §6",
+     "mechanisms": [
+      "Layer 1 Commons ~35% of consumption (land, water, grid, transport, digital, health, education, staple food floor, housing tenure) at cost or free",
+      "Layer 2 Market ~55% with real prices/profit/failure; worker cooperative is the default legal form with tax and procurement preference",
+      "Layer 3 Contribution ~10% (care, culture, maintenance, emergency corps) via civic dividend and non-convertible time credits",
+      "city owns all land in perpetuity, never sells; 99-year transferable mortgageable ground leases; ground rent is the primary public revenue (LVT in all but name)",
+      "8:1 total compensation ratio cap within any single firm",
+      "Job Guarantee at base wage within 14 days of application"
+     ]
+    },
+    "gini_target": {
+     "value": null,
+     "status": "missing",
+     "note": "no Gini figure; an 8:1 intra-firm compensation ratio cap is stated instead, with inequality named as the strongest cross-national correlate of homicide"
+    },
+    "energy_demand_avg_mw": {
+     "value": 149.9,
+     "unit": "MW",
+     "status": "derived",
+     "source": "1,313 GWh/yr stated / 8,760 h",
+     "note": "5,250 kWh/person/yr delivered electricity, inclusive of industry, food, water, transport and steelmaking"
+    },
+    "energy_demand_peak_mw": {
+     "value": null,
+     "status": "missing",
+     "note": "no peak load stated; storage power ratings are given (700 MW battery, 260 MW charge / 145 MW discharge long-duration) but these are not a demand peak"
+    },
+    "energy_mix": {
+     "value": "372 MW wind (62 x 6 MW) + 795 MWp PV (145 roof + 650 agrivoltaic over ~810 ha) + 12 MW hydro + 90 MW biomass CHP; 2,162 GWh/yr generation = x1.65 overbuild; biomass only 11.8% of demand from 417 km2 forest",
+     "status": "stated",
+     "source": "masterplan §5.4"
+    },
+    "battery_storage_gwh": {
+     "value": 3.5,
+     "unit": "GWh battery (700 MW) + 160 GWh long-duration (~104 GWh deliverable after round-trip losses)",
+     "status": "stated",
+     "source": "masterplan §5.4"
+    },
+    "energy_autonomy_days": {
+     "value": 29,
+     "unit": "days",
+     "status": "derived",
+     "source": "~104 GWh deliverable long-duration storage / 3.60 GWh mean daily demand",
+     "note": "the repo does NOT frame this as an autonomy figure — it instead reports a 20-year hourly simulation giving 'Lean Mode' rationing 4 h/yr mean, 28 h in the worst of 20 years, and unserved energy 0.015% of demand in that worst year"
+    },
+    "water_demand": {
+     "value": 65753,
+     "unit": "m3/day",
+     "status": "derived",
+     "source": "24.0 Mm3/yr stated / 365",
+     "note": "10.0 domestic (110 L/person/day) + 4.1 industrial + 9.8 irrigation; margin x7.9 mean and x4.9 in a 1-in-100 dry year"
+    },
+    "water_sources": {
+     "value": "975 km2 catchment yield 190 Mm3/yr mean (118 Mm3/yr in a 1-in-100 dry year) at 750 mm rainfall and 0.26 runoff coefficient; all wastewater treated to reuse standard and returned to irrigation and industry; struvite phosphorus recovery",
+     "status": "stated",
+     "source": "masterplan §5.3"
+    },
+    "water_reserve_days": {
+     "value": 365,
+     "unit": "days",
+     "status": "derived",
+     "source": "24 Mm3 stated storage / 24.0 Mm3/yr demand",
+     "note": "the repo frames this as carrying a three-consecutive-dry-year sequence rather than as a days figure"
+    },
+    "food_self_sufficiency": {
+     "value": "Tier 1 (water, calories, protein, heat, shelter, sanitation, essential medicines, electricity) achieved indefinitely from territory: 306 km2 cropland+pasture, 0.12 ha/person, 2,550 kcal/day at the plate, 16.9% of calories from animals, grossed up x1.368 for loss/waste/seed",
+     "status": "stated",
+     "source": "masterplan §5.1, §5.2"
+    },
+    "food_reserve_months": {
+     "value": 18,
+     "unit": "months staple food (distributed silos, not one central)",
+     "status": "stated",
+     "source": "masterplan §5.2, Art. 9",
+     "note": "plus 90 days of critical spares and a 20-year Tier 3 strategic stock"
+    },
+    "housing_floor_m2_per_person": {
+     "value": 40,
+     "unit": "m2/person city-wide provision (statutory minimum 28 m2 for a one-person home, +12 m2 per additional occupant)",
+     "status": "stated",
+     "source": "masterplan §1, §4.2",
+     "note": "highest provision of the six; also mandates dual aspect, >=2 h winter-solstice sun, >=2.7 m ceilings, >=5 m2 private outdoor space"
+    },
+    "noise_limit_db": {
+     "value": "<=50 dB Lden at facade, <=30 dB LAeq in bedrooms at night",
+     "status": "stated",
+     "source": "masterplan §4.2",
+     "note": "the repo flags this itself as 'at the optimistic end of the evidence' — a target with a monitoring duty, achievable only because there is no through motor traffic"
+    },
+    "commute_target": {
+     "value": "bicycle commute p90 8.4 min (max 11.6); health centre by bike p90 3.4 min; ward hub within a 10-min walk for 100% (p90 5.2 min); park within 300 m for 99.8%",
+     "status": "stated",
+     "source": "masterplan §4.1",
+     "note": "modelled on the actual network by models/amenity_access_model.py, not asserted"
+    },
+    "local_reserve_hours": {
+     "value": 72,
+     "unit": "hours (cool refuge within 400 m holding <=30 C wet-bulb for 72 h with no grid power or fuel, Art. 27)",
+     "status": "stated",
+     "source": "masterplan §9 Art. 27, Art. 28",
+     "note": "every ward also holds an emergency cache and duty responder; trained citizen responders >=1 per 15 residents (~16,700 people)"
+    }
+   },
+   "sim_capabilities": {
+    "fire": {
+     "supported": true,
+     "confidence": "high",
+     "notes": "Best-dimensioned fabric of the six: 100 m block lattice, 12/22/34 m street hierarchy, 12 m lanes named explicitly as fire breaks, sprinklers throughout, encapsulated mass timber with calculated charring depth, no domestic gas, and a 200 m WUI buffer. The city being timber cuts both ways and the repo says so."
+    },
+    "flood": {
+     "supported": true,
+     "confidence": "high",
+     "notes": "12 m berm height stated, 71 vertical-evacuation refuges with modelled walk times (p99.9 8:49 against a 10:00 budget), stormwater sized to a projected 2150 1-in-200-year rainfall. The design inundation depth itself is given only relationally (inundation + 3 m freeboard), so the overtopping threshold is still user-set."
+    },
+    "quake": {
+     "supported": true,
+     "confidence": "high",
+     "notes": "Runs its own 300-trial degraded case with street-class debris blockage and 2 of 7 stations lost. Isolation scope and rocking-wall system are specific. Caveat: the design basis is a 2,475-year RETURN PERIOD with no magnitude, so damage is scored against a generic M8.0 (flagged), and no explicit soft-storey ban is stated."
+    },
+    "population": {
+     "supported": true,
+     "confidence": "high",
+     "notes": "The most measured of the six: 40 m2/person, ward hub within a 5-min walk for 100%, park within 300 m for 99.8%, plus job guarantee, 8:1 pay cap and Commons tier — all modelled on the network rather than asserted."
+    }
+   }
+  }
+ ]
 }

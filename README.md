@@ -1,6 +1,6 @@
 # City Design Sandbox
 
-An interactive stress-test of five independently-designed *self-sufficient,
+An interactive stress-test of six independently-designed *self-sufficient,
 worldwide-replicable city* blueprints, normalised to one schema and run through
 fire, flood, earthquake and a needs-based population simulation.
 
@@ -9,28 +9,41 @@ and they disagree — in scale, in what they measure, and in how much detail the
 commit to. This project's whole point is to compare them **honestly**: where a
 design doesn't state a figure, it is marked `MISSING`, never inferred.
 
-| Design | Source repo | Form | Population |
-|---|---|---|---|
-| **Solaris** | `claude-code-haiku` | Concentric rings, 25 km radius | 520,000 |
-| **Meridian (Sonnet)** | `claude-code-sonnet` | Fractal hex-of-hexes | 467,031 |
-| **CIVITAS** | `claude-code-opus` | Single hexagon module | 250,000 |
-| **Meridian (Fable)** | `claude-code-fable/worldwide-city` | Hex flower (7 districts) | 1,000,000 |
-| **Resilient City (ChatGPT)** | `chat-gpt-code/resilient-city` | Square 5×5 grid of 2 km districts | 1,000,000 |
+| Design | Model | Source repo | Form | Population |
+|---|---|---|---|---|
+| **Solaris** | Claude Haiku | `claude-code-haiku` | Concentric rings, 25 km radius | 520,000 |
+| **Meridian (Sonnet)** | Claude Sonnet | `claude-code-sonnet` | Fractal hex-of-hexes | 467,031 |
+| **CIVITAS** | Claude Opus 4.8 | `claude-code-opus-4.8` | Single hexagon module | 250,000 |
+| **Meridian (Fable)** | Claude Fable | `claude-code-fable/worldwide-city` | Hex flower (7 districts) | 1,000,000 |
+| **Resilient City** | ChatGPT | `chat-gpt-code/resilient-city` | Square 5×5 grid of 2 km districts | 1,000,000 |
+| **HEARTH** | Claude Opus 5 | `claude-code-opus` | Hexagon with 60 ward hubs | 250,000 |
 
-> The first four designs come from Claude models; **Resilient City was produced by
-> ChatGPT** and added later at the user's request. It was normalised and simulated
-> on exactly the same terms as the other four — no special treatment, and its gaps
-> are flagged the same way.
+### Two notes on the labels
+
+**The repo rename.** CIVITAS's repo was renamed from `claude-code-opus` to
+`claude-code-opus-4.8` when Opus 5's HEARTH took over the `claude-code-opus`
+name. The table above uses the **current** names, so `claude-code-opus` now
+means HEARTH, not CIVITAS.
+
+**Version precision.** Only the two Opus repos state a version anywhere. The
+Haiku, Sonnet and Fable repos record no minor version in their contents, so
+those labels are deliberately left unversioned rather than guessed — the same
+rule applied to the figures applies to the labels.
+
+> Five designs come from Claude models and one from ChatGPT. All six were
+> normalised and simulated on identical terms — no special treatment, and every
+> design's gaps are flagged the same way.
 
 ## Deliverables
 
 | File | What it is |
 |---|---|
 | **`index.html`** | The sandbox web app — open it in a browser (or serve the folder). No build step, no network. |
-| **`data/normalized_cities.json`** | The single source of truth: every key figure from all four repos in one schema, each tagged `stated` / `derived` / `missing`. |
+| **`data/normalized_cities.json`** | The single source of truth: every key figure from all six repos in one schema, each tagged `stated` / `derived` / `missing`. |
 | **`city_comparison.xlsx`** | The spreadsheet comparison (4 sheets: Overview, Full Comparison, Data Gaps, Legend). Missing figures are shaded orange and labelled; derived figures are blue with the formula in a cell comment. |
 | **`js/`** | App source: `citygen.js` (builds each city's sim grid from its stated geometry), `sim.js` (fire/flood/quake engines), `agents.js` (population sim), `compare.js`, `render.js`, `main.js`. |
-| **`tools/`** | `gen_data_js.py` (regenerates `js/data.js` from the JSON), `build_xlsx.py` (regenerates the spreadsheet). |
+| **`city_comparison.html`** | Phone-friendly responsive version of the comparison — same data, opens in any mobile browser. |
+| **`tools/`** | `gen_data_js.py` (regenerates `js/data.js`), `build_xlsx.py` (spreadsheet), `build_html.py` (phone page). |
 
 ## Running it
 
@@ -47,6 +60,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 ```bash
 python3 tools/gen_data_js.py   # -> js/data.js (what the app reads)
 python3 tools/build_xlsx.py    # -> city_comparison.xlsx  (needs: pip install openpyxl)
+python3 tools/build_html.py    # -> city_comparison.html (phone-friendly page)
 ```
 
 ## Using the sandbox
@@ -54,7 +68,7 @@ python3 tools/build_xlsx.py    # -> city_comparison.xlsx  (needs: pip install op
 1. **Pick a design** from the top bar. The map is generated procedurally from
    *that design's own* stated geometry (ring radii, hex sizes, block grid,
    station layout, coastal defences).
-2. **Compare tab** — side-by-side minimaps of all four forms, the full
+2. **Compare tab** — side-by-side minimaps of all six forms, the full
    normalised table (hover any cell for its source and definition), and the
    comparability warnings you must read before ranking anything.
 3. **Sandbox tab** — pick a tool and act on the map:
@@ -84,15 +98,17 @@ figure is missing:
   its fire spreads over unbroken fabric (worst case) and the UI flags that as a
   forced assumption. Meridian (Fable) states a 130 m block grid, 20 m streets and
   wedge firebreaks, so it earns the containment those buy.
-- **Earthquake** reads each design's magnitude basis. CIVITAS and Meridian
-  (Sonnet) give a performance framework but **no magnitude number**, so the app
-  assumes a generic M8.0 MCE and says so. Meridian (Fable) states it bans gas and
-  is all-electric, so its quakes don't spawn fires; the others, silent on gas, do.
+- **Earthquake** reads each design's magnitude basis. CIVITAS, Meridian (Sonnet),
+  Resilient City and HEARTH give a performance framework or a return period but
+  **no magnitude number**, so the app assumes a generic M8.0 MCE and says so.
+  Meridian (Fable) bans gas outright and HEARTH has no reticulated gas (its heat is
+  solar thermal), so their quakes don't spawn fires; designs silent on gas, or that
+  keep an auto-isolated network like Resilient City, do.
 - **Flood** scales against the stated barrier height where given (Meridian-F +15 m,
   Solaris 15 m tsunami design). Where the barrier height is **not** stated
-  (Meridian-S, CIVITAS), the app picks a placeholder, flags it as assumed, and the
+  (Meridian-S, CIVITAS, Resilient City), the app picks a placeholder, flags it as assumed, and the
   flood tool runs at low confidence. No design maps terrain, so a single gentle
-  coastal slope is applied **identically to all four** — a shared assumption that
+  coastal slope is applied **identically to all six** — a shared assumption that
   never favours one design.
 - **Population** baselines are derived, not asserted: a stated job guarantee lifts
   the employment baseline; a stated 35 m² housing floor lifts housing; quantified
@@ -103,29 +119,50 @@ figure is missing:
 
 # Data gaps found in the source repos
 
-Normalising five independent designs surfaced **57 missing figures** and several
+Normalising six independent designs surfaced **67 missing figures** and several
 structural incompatibilities. Here is what was missing and how each was handled.
 
 ## Missing-figure counts
 
-| Design | Figures missing (of 49) | Simulation impact |
-|---|---|---|
-| Meridian (Fable) | 5 | Lowest — richest, most quantified design |
-| Solaris | 10 | Fire/flood at **low** confidence (no spacing, no terrain) |
-| Resilient City (ChatGPT) | 12 | No seismic magnitude, no soft-storey ban, no tsunami height; strong on QoL/economy |
-| Meridian (Sonnet) | 14 | Flood tsunami height missing; fire OK via firebreaks |
-| CIVITAS | 16 | No seismic magnitude; flood defences unnumbered |
+| Design | Model | Figures missing (of 49) | Simulation impact |
+|---|---|---|---|
+| Meridian (Fable) | Claude Fable | 5 | Lowest — richest, most quantified design |
+| HEARTH | Claude Opus 5 | 8 | All four sims at **high** confidence; gaps are police facilities, peak load, soft-storey ban |
+| Solaris | Claude Haiku | 10 | Fire/flood at **low** confidence (no spacing, no terrain) |
+| Resilient City | ChatGPT | 13 | No seismic magnitude, no soft-storey ban, no tsunami height; strong on QoL/economy |
+| Meridian (Sonnet) | Claude Sonnet | 15 | Flood tsunami height missing; fire OK via firebreaks |
+| CIVITAS | Claude Opus 4.8 | 16 | No seismic magnitude; flood defences unnumbered |
 
-The ChatGPT design normalises cleanly — it is one of the better-specified of the
-five, especially on quality-of-life SLOs, the economic model and emergency-response
-maths (it ships its own response-time script). Its gaps cluster in structural
-specifics: like CIVITAS it gives a seismic *performance framework* but no magnitude
-number; unlike Meridian (Fable/Sonnet) it never states an explicit soft-storey ban;
-and its flood strategy is deliberately *avoidance* (build landward of the inundation
-line) rather than a numbered barrier, so no design wave height exists to simulate
-against. It also keeps a gas network (auto-isolated, not eliminated), so it retains
-some post-quake ignition risk that Meridian (Fable) designs out. All of this is
-flagged in the UI, not smoothed over.
+The ChatGPT design normalises cleanly — it is one of the better-specified, especially
+on quality-of-life SLOs, the economic model and emergency-response maths (it ships its
+own response-time script). Its gaps cluster in structural specifics: like CIVITAS it
+gives a seismic *performance framework* but no magnitude number; it never states an
+explicit soft-storey ban; and its flood strategy is deliberately *avoidance* (build
+landward of the inundation line) rather than a numbered barrier, so no design wave
+height exists to simulate against. It also keeps a gas network (auto-isolated, not
+eliminated), so it retains some post-quake ignition risk that Meridian (Fable)
+designs out.
+
+**HEARTH (Opus 5) is the most computed of the six.** It ships model outputs rather
+than assertions — the seven station coordinates the sandbox uses are the actual
+p-median result from its own `models/outputs/response_times.json`, and it runs a
+300-trial post-earthquake case with debris blockage rated *per street class* plus a
+speed-sensitivity sweep. It is also the only design to state a dated future-climate
+stormwater standard (the projected 2150 1-in-200-year rainfall) and the only one to
+publish a fully dimensioned street hierarchy (12 m lanes / 22 m collectors / 34 m
+avenues on a 100 m lattice). Its eight gaps are narrow and mostly peripheral: no
+police facilities or response target (deliberate — crisis calls route to unarmed
+health teams), no peak electrical load, no ambulance count, and no explicit
+soft-storey ban.
+
+### An interesting convergence
+
+CIVITAS (Opus 4.8) and HEARTH (Opus 5) independently arrived at **the same outer
+form**: a hexagon of 2,630 m circumradius holding 250,000 people at ~13,900/km².
+The interiors are completely different — CIVITAS uses six wedge districts around a
+civic core, HEARTH uses 6 districts subdivided into 60 ward hubs on a 100 m block
+lattice with zero parking land — but the envelope is identical. Worth noting because
+it is the one case where two designs in this set can be compared almost like-for-like.
 
 The full per-figure list with reasons is in the **Data Gaps** sheet of the xlsx
 and in `data/normalized_cities.json` (`status: "missing"` entries).
@@ -148,7 +185,7 @@ and in `data/normalized_cities.json` (`status: "missing"` entries).
   a placeholder barrier height is used and marked assumed; the flood tool drops to
   low confidence for those designs.
 - **Terrain / elevation.** No design publishes a heightmap. **Handling:** one
-  gentle coast-to-inland slope is applied identically to all four so surge
+  gentle coast-to-inland slope is applied identically to all six so surge
   physics are sane and even-handed.
 - **Gas grid / ignition sources.** Only Meridian (Fable) explicitly states it is
   all-electric with no gas (removing the post-quake ignition source). **Handling:**
@@ -162,9 +199,17 @@ of the Compare tab and the xlsx Overview:
 
 1. **Crime targets are different metrics.** Solaris: 15 *total* crimes/100k.
    Meridian (Sonnet): <150 *violent* crimes/100k. CIVITAS: <1 *homicide*/100k.
-   Meridian (Fable): <0.5 *homicide*/100k. Resilient City: <2 *homicide*/100k (plus
-   separate violent-victimisation and burglary sub-targets). Each carries a `metric`
-   field; they are never compared as a single number.
+   Meridian (Fable) and HEARTH: <0.5 *homicide*/100k. Resilient City: <2
+   *homicide*/100k. Resilient City and HEARTH add separate overall-offence
+   sub-targets. Each carries a `metric` field; they are never compared as a
+   single number.
+
+4. **Seismic design bases are in different units.** Solaris and Meridian (Fable)
+   give a *magnitude* (9.0 Mw; M8+/M7). HEARTH gives a *return period* (2,475-year).
+   Meridian (Sonnet), CIVITAS and Resilient City give only a *performance framework*
+   (MCE / Immediate Occupancy). The simulator can only score damage against a
+   magnitude, so the latter four fall back to a flagged generic M8.0 — and the
+   parser specifically refuses to read the "2" of "2,475-year" as a magnitude.
 2. **Response times use different definitions.** Some designs report travel-only
    time, others end-to-end (call → on-scene, including dispatch and turnout). Each
    figure carries a `definition` field noting which.

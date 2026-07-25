@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build city_comparison.xlsx from data/normalized_cities.json.
+"""Build city_comparison.xlsx from data/normalized_cities.json (six cities).
 
 Missing figures are written as the literal string "MISSING — <reason>" and
 shaded, never left blank or coerced to 0. Derived figures are tagged. The
@@ -30,7 +30,7 @@ CENTER = Alignment(horizontal="center", vertical="top")
 thin = Side(style="thin", color="D9D9D9")
 BORDER = Border(left=thin, right=thin, top=thin, bottom=thin)
 
-CITY_COLORS = {"solaris": "3987E5", "meridian-s": "199E70", "civitas": "C98500", "meridian-f": "9085E9", "resilient-city": "D55181"}
+CITY_COLORS = {"solaris": "3987E5", "meridian-s": "199E70", "civitas": "C98500", "meridian-f": "9085E9", "resilient-city": "D55181", "hearth": "D95926"}
 
 ROWS = [
     ("— Scale & form —", None),
@@ -55,6 +55,8 @@ ROWS = [
     ("site_elevation_model", "Site elevation / terrain data"),
     ("stormwater_drainage", "Stormwater drainage"),
     ("wind_design", "Wind design"),
+    ("firebreaks", "Firebreaks"),
+    ("green_cover_pct", "Green cover (%)"),
     ("— Emergency response —", None),
     ("fire_stations", "Fire stations"),
     ("fire_response_median_min", "Fire response, median (min)"),
@@ -117,16 +119,16 @@ wb = Workbook()
 # ============ Sheet 1: Overview ============
 ws = wb.active
 ws.title = "Overview"
-ws["A1"] = "Four Self-Sufficient City Blueprints — Normalised Comparison"
+ws["A1"] = "Six Self-Sufficient City Blueprints — Normalised Comparison"
 ws["A1"].font = TITLE
 ws["A2"] = f"Generated {data['generated']} from data/normalized_cities.json (schema v{data['schema_version']}). " \
            "MISSING = the source repo does not report this figure; nothing was inferred."
 ws["A2"].font = SUB
-ws.merge_cells("A1:F1"); ws.merge_cells("A2:F2")
+ws.merge_cells("A1:G1"); ws.merge_cells("A2:G2")
 
 r = 4
 ws.cell(r, 1, "City").font = HDR
-headers = ["City", "Repo", "Population", "Urban area (km²)", "Gross density (/km²)", "Figures missing"]
+headers = ["City", "Model", "Repo", "Population", "Urban area (km²)", "Gross density (/km²)", "Figures missing"]
 for c, h in enumerate(headers, 1):
     cell = ws.cell(r, c, h)
     cell.font = HDR; cell.fill = HDR_FILL; cell.border = BORDER; cell.alignment = CENTER
@@ -135,7 +137,7 @@ for city in cities:
     f = city["figures"]
     miss = sum(1 for x in f.values() if x.get("status") == "missing")
     total = len(f)
-    vals = [city["name"], city["repo"], f["population"]["value"],
+    vals = [city["name"], city.get("model", "—"), city["repo"], f["population"]["value"],
             f["urban_area_km2"]["value"], f["gross_density_per_km2"]["value"],
             f"{miss} of {total}"]
     for c, v in enumerate(vals, 1):
@@ -150,11 +152,11 @@ r += 1
 for w in data["comparability_warnings"]:
     cell = ws.cell(r, 1, "•  " + w)
     cell.font = Font(color="C0504D", size=10); cell.alignment = WRAP
-    ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=6)
+    ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=7)
     ws.row_dimensions[r].height = 42
     r += 1
 
-widths = [22, 30, 14, 16, 18, 16]
+widths = [24, 17, 30, 14, 16, 18, 16]
 for c, w in enumerate(widths, 1):
     ws.column_dimensions[get_column_letter(c)].width = w
 
@@ -162,9 +164,9 @@ for c, w in enumerate(widths, 1):
 ws2 = wb.create_sheet("Full Comparison")
 ws2.cell(1, 1, "Figure").font = HDR; ws2.cell(1, 1).fill = HDR_FILL; ws2.cell(1, 1).border = BORDER
 for c, city in enumerate(cities, 2):
-    cell = ws2.cell(1, c, city["name"])
+    cell = ws2.cell(1, c, f'{city["name"]}\n({city.get("model", "—")})')
     cell.font = HDR; cell.fill = PatternFill("solid", fgColor=CITY_COLORS[city["id"]])
-    cell.border = BORDER; cell.alignment = CENTER
+    cell.border = BORDER; cell.alignment = Alignment(horizontal='center', vertical='top', wrap_text=True)
 ws2.freeze_panes = "B2"
 
 row = 2
@@ -247,11 +249,15 @@ notes = [
     ("Density", "Solaris's area includes agricultural rings inside the city boundary; the others exclude hinterland."),
     ("", ""),
     ("Source repos", ""),
-    ("Solaris", "claude-code-haiku — concentric rings, 25 km radius, 520k people"),
-    ("Meridian (Sonnet)", "claude-code-sonnet — fractal hex-of-hexes, 467k people"),
-    ("CIVITAS", "claude-code-opus — single hexagon module, 250k people"),
-    ("Meridian (Fable)", "claude-code-fable/worldwide-city — hex flower, 1M people"),
-    ("Resilient City (ChatGPT)", "chat-gpt-code/resilient-city — 5x5 square grid of 2 km districts, 1M people (added later; a ChatGPT design, not a Claude-model one)"),
+    ("Solaris — Claude Haiku", "claude-code-haiku — concentric rings, 25 km radius, 520k people"),
+    ("Meridian (Sonnet) — Claude Sonnet", "claude-code-sonnet — fractal hex-of-hexes, 467k people"),
+    ("CIVITAS — Claude Opus 4.8", "claude-code-opus-4.8 — single hexagon module, 250k people. NOTE: this repo was renamed from claude-code-opus when Opus 5's HEARTH took that name."),
+    ("Meridian (Fable) — Claude Fable", "claude-code-fable/worldwide-city — hex flower, 1M people"),
+    ("Resilient City — ChatGPT", "chat-gpt-code/resilient-city — 5x5 square grid of 2 km districts, 1M people (added later; a ChatGPT design, not a Claude-model one)"),
+    ("HEARTH — Claude Opus 5", "claude-code-opus — hexagon with 60 ward hubs, 250k people. Same outer hexagon as CIVITAS (2,630 m circumradius) but a different interior."),
+    ("", ""),
+    ("Model labels", ""),
+    ("Versions", "Only the two Opus repos state a version (4.8 and 5). The Haiku, Sonnet and Fable repos record no minor version anywhere, so those labels are unversioned rather than guessed."),
 ]
 r = 3
 for a, b in notes:

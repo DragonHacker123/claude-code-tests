@@ -268,12 +268,19 @@
       // design basis from the source, or flagged generic
       let basis = 8.0, basisStated = true;
       const sb = this.city.figures.seismic_design_basis;
-      if (sb.status === 'missing' || !/\d/.test(String(sb.value))) {
+      // Only a MAGNITUDE counts as a basis we can score damage against. A return
+      // period ("2,475-year event") or a performance framework ("MCE, Immediate
+      // Occupancy") is a real design basis but not a magnitude — those fall back
+      // to a generic M8.0 and are flagged, rather than having a stray number
+      // (the "2" of "2,475") misread as a magnitude.
+      const sbTxt = String(sb.value);
+      const basisMatch = sb.status === 'missing' ? null
+        : (sbTxt.match(/\bM\s*(\d(?:\.\d+)?)/i) || sbTxt.match(/(\d(?:\.\d+)?)\s*Mw/i));
+      if (!basisMatch) {
         basisStated = false;
-        this.assumptions.push('Seismic design basis has no magnitude number in source — generic M8.0 MCE assumed (flagged).');
+        this.assumptions.push('Seismic design basis states no magnitude in source (return period or performance framework only) — generic M8.0 MCE assumed (flagged).');
       } else {
-        const m = String(sb.value).match(/(\d+(?:\.\d+)?)/);
-        basis = parseFloat(m[1]);
+        basis = parseFloat(basisMatch[1]);
       }
       const softBan = this.city.figures.soft_storey_ban;
       const exceed = mag - basis;   // how far beyond design basis

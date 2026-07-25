@@ -18,7 +18,7 @@ data = json.loads((ROOT / "data" / "normalized_cities.json").read_text())
 cities = data["cities"]
 
 COLORS = {"solaris": "#3987e5", "meridian-s": "#199e70", "civitas": "#c98500",
-          "meridian-f": "#9085e9", "resilient-city": "#d55181"}
+          "meridian-f": "#9085e9", "resilient-city": "#d55181", "hearth": "#d95926"}
 
 SECTIONS = [
     ("Scale & form", [
@@ -111,8 +111,8 @@ def body_html():
     out.append('<main class="wrap">')
     out.append('<header class="masthead">')
     out.append('<p class="eyebrow">Normalised comparison</p>')
-    out.append('<h1>Five self-sufficient city blueprints, one honest schema</h1>')
-    out.append('<p class="lede">Four designs from Claude models (Haiku, Sonnet, Opus, Fable) '
+    out.append('<h1>Six self-sufficient city blueprints, one honest schema</h1>')
+    out.append('<p class="lede">Five designs from Claude models (Haiku, Sonnet, Fable, Opus&nbsp;4.8, Opus&nbsp;5) '
                'and one from ChatGPT, each built from the same brief. Where a design does not '
                'state a figure it is marked <span class="miss inline">MISSING</span> — never inferred.</p>')
     out.append('</header>')
@@ -128,7 +128,7 @@ def body_html():
             f'<div class="chip" style="--c:{col}">'
             f'<span class="dot"></span>'
             f'<span class="cname">{e(c["name"])}</span>'
-            f'<span class="cmeta">{pop:,} · {miss} gaps</span>'
+            f'<span class="cmeta">{e(c.get("model", "—"))} · {pop:,} · {miss} gaps</span>'
             f'</div>')
     out.append('</section>')
 
@@ -151,7 +151,8 @@ def body_html():
                 miss_cls = " ismiss" if (fig is None or fig.get("status") == "missing") else ""
                 out.append(
                     f'<div class="cell{miss_cls}" style="--c:{col}">'
-                    f'<div class="clab"><span class="dot"></span>{e(c["name"])}</div>'
+                    f'<div class="clab"><span class="dot"></span>{e(c["name"])}'
+                    f'<span class="cmodel">{e(c.get("model", ""))}</span></div>'
                     f'<div class="cval">{value_html(fig)}</div>'
                     f'</div>')
             out.append('</div></div>')
@@ -218,6 +219,7 @@ h2.sec{margin:34px 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppe
 .cell.ismiss{background:var(--miss-bg);border-color:var(--miss-line);border-top-color:var(--miss-line)}
 .clab{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);
   font-weight:600;margin-bottom:5px;text-transform:uppercase;letter-spacing:.03em}
+.cmodel{margin-left:auto;font-weight:500;text-transform:none;letter-spacing:0;opacity:.85}
 .clab .dot{width:7px;height:7px;border-radius:50%;background:var(--c);flex:none}
 .cval{font-size:14px;line-height:1.4;overflow-wrap:break-word}
 .cval .v{font-weight:600;font-variant-numeric:tabular-nums}

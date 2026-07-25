@@ -73,7 +73,7 @@
       const total = Object.keys(c.figures).length;
       html += `<div class="card" style="border-top: 3px solid ${colors[c.id]}">
         <h3><span class="dot" style="background:${colors[c.id]}"></span>${esc(c.name)}</h3>
-        <div class="cardsub">${esc(c.repo)}</div>
+        <div class="cardsub"><strong>${esc(c.model)}</strong><br>${esc(c.repo)}</div>
         <canvas class="mini" data-city="${c.id}" width="180" height="180"></canvas>
         <div class="cardstats">
           <div><span>${(c.figures.population.value / 1000).toFixed(0)}k</span> residents</div>
@@ -86,7 +86,7 @@
 
     // full table
     html += '<div class="tablewrap"><table><thead><tr><th>Figure</th>' +
-      cities.map(c => `<th><span class="dot" style="background:${colors[c.id]}"></span>${esc(c.name)}</th>`).join('') +
+      cities.map(c => `<th><span class="dot" style="background:${colors[c.id]}"></span>${esc(c.name)}<br><span class="thmodel">${esc(c.model)}</span></th>`).join('') +
       '</tr></thead><tbody>';
     for (const [key, label] of ROWS) {
       html += `<tr><td class="rowlabel">${esc(label)}</td>`;
